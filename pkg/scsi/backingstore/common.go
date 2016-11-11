@@ -22,7 +22,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/golang/glog"
+	glog "github.com/Sirupsen/logrus"
 	"github.com/gostor/gotgt/pkg/api"
 	"github.com/gostor/gotgt/pkg/scsi"
 	"github.com/gostor/gotgt/pkg/util"
@@ -161,7 +161,7 @@ write:
 			asc = scsi.ASC_READ_ERROR
 			goto sense
 		}
-		glog.V(2).Infof("write data at %d for length %d", offset, length)
+		glog.Infof("write data at %d for length %d", offset, length)
 		var pg *api.ModePage
 		for _, p := range lu.ModePages {
 			if p.Pcode == 0x08 && p.SubPcode == 0 {

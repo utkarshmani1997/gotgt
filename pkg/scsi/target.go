@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"unsafe"
 
-	"github.com/golang/glog"
+	glog "github.com/Sirupsen/logrus"
 	"github.com/gostor/gotgt/pkg/api"
 )
 

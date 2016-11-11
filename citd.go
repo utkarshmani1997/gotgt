@@ -26,7 +26,8 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/golang/glog"
+	glog "github.com/Sirupsen/logrus"
+
 	"github.com/gostor/gotgt/pkg/apiserver"
 	"github.com/gostor/gotgt/pkg/config"
 	"github.com/gostor/gotgt/pkg/port"

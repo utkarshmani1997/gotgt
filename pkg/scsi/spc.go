@@ -22,7 +22,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/golang/glog"
+	glog "github.com/Sirupsen/logrus"
 	"github.com/gostor/gotgt/pkg/api"
 	"github.com/gostor/gotgt/pkg/util"
 )
@@ -708,21 +708,21 @@ func SPCServiceAction(host int, cmd *api.SCSICommand) api.SAMStat {
 	rsa := util.GetUnalignedUint16(scb[4:])
 	switch reporting_options {
 	case 0x00: /* report all */
-		glog.V(3).Infof("Service Action: report all")
+		glog.Infof("Service Action: report all")
 		err := reportOpcodesAll(cmd, rctd)
 		if err != nil {
 			glog.Error(err)
 			goto sense
 		}
 	case 0x01: /* report one no service action*/
-		glog.V(3).Infof("Service Action: report one no service action")
+		glog.Infof("Service Action: report one no service action")
 		err := reportOpcodeOne(cmd, rctd, opcode, rsa, false)
 		if err != nil {
 			glog.Error(err)
 			goto sense
 		}
 	case 0x02: /* report one service action */
-		glog.V(3).Infof("Service Action: report one service action")
+		glog.Infof("Service Action: report one service action")
 		err := reportOpcodeOne(cmd, rctd, opcode, rsa, true)
 		if err != nil {
 			glog.Error(err)

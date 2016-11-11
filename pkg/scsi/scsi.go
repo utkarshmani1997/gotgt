@@ -23,7 +23,7 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/golang/glog"
+	glog "github.com/Sirupsen/logrus"
 	"github.com/gostor/gotgt/pkg/api"
 )
 
@@ -79,7 +79,7 @@ func (s *SCSITargetService) AddCommandQueue(tid int, scmd *api.SCSICommand) erro
 	lun := *(*uint64)(unsafe.Pointer(&scmd.Lun))
 	scmd.Device = target.Devices[lun]
 
-	glog.V(2).Infof("scsi opcode: 0x%x, LUN: %d:", int(scmd.SCB.Bytes()[0]), binary.LittleEndian.Uint64(scmd.Lun[:]))
+	glog.Infof("scsi opcode: 0x%x, LUN: %d:", int(scmd.SCB.Bytes()[0]), binary.LittleEndian.Uint64(scmd.Lun[:]))
 
 	if scmd.Device == nil {
 		scmd.Device = target.LUN0
@@ -161,7 +161,7 @@ func BuildSenseData(cmd *api.SCSICommand, key byte, asc SCSISubError) {
 			senseBuffer.Truncate(int(inBufLen))
 		}
 	} else {
-		glog.V(2).Infof("cannot calc cbd alloc length. truncate failed")
+		glog.Infof("cannot calc cbd alloc length. truncate failed")
 	}
 	cmd.Result = key
 	cmd.SenseBuffer = senseBuffer
