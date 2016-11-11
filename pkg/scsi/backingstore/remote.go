@@ -46,7 +46,7 @@ func newRemBs() (api.BackingStore, error) {
 
 func (bs *RemBackingStore) Open(dev *api.SCSILu, path string) error {
 	bs.DataSize = uint64(dev.Size)
-	bs.RemBs = scsi.GetTargetLHBSMap(path)
+	bs.RemBs = scsi.GetTargetBSMap(path)
 	return nil
 }
 
