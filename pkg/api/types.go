@@ -20,6 +20,7 @@ import (
 	"sync"
 
 	"github.com/satori/go.uuid"
+	"io"
 )
 
 type SCSICommandType byte
@@ -340,6 +341,11 @@ var (
 )
 
 type CommandFunc func(host int, cmd *SCSICommand) SAMStat
+
+type ReaderWriterAt interface {
+	io.ReaderAt
+	io.WriterAt
+}
 
 type BackingStore interface {
 	Open(dev *SCSILu, path string) error
