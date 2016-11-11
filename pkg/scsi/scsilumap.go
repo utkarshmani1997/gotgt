@@ -29,11 +29,16 @@ type BackendType string
 
 type SCSILUMap struct {
 	mutex         sync.RWMutex
-	AllDevices    api.LUNMap            /* use UUID as the key for all LUs*/
-	TargetsLUNMap map[string]api.LUNMap /* use target name as the key for target's LUN map*/
+	AllDevices    api.LUNMap                    /* use UUID as the key for all LUs*/
+	TargetsLUNMap map[string]api.LUNMap         /* use target name as the key for target's LUN map*/
+	TargetsBSMap  map[string]api.ReaderWriterAt /* use target name as the key for target's Backing Store (temp) */
 }
 
-var globalSCSILUMap = SCSILUMap{AllDevices: make(api.LUNMap), TargetsLUNMap: make(map[string]api.LUNMap)}
+var globalSCSILUMap = SCSILUMap{
+	AllDevices:    make(api.LUNMap),
+	TargetsLUNMap: make(map[string]api.LUNMap),
+	TargetsBSMap:  make(map[string]api.ReaderWriterAt),
+}
 
 func mappingLUN(deviceID uint64, lun uint64, target string) {
 
@@ -64,6 +69,15 @@ func GetTargetLUNMap(tgtName string) api.LUNMap {
 	return lunMap
 }
 
+func GetTargetBSMap(tgtName string) api.ReaderWriterAt {
+	/* TODO check for lock held by caller
+	globalSCSILUMap.mutex.RLock()
+	defer globalSCSILUMap.mutex.RUnlock()*/
+
+	lunMap := globalSCSILUMap.TargetsBSMap[tgtName]
+	return lunMap
+}
+
 func InitSCSILUMap(config *config.Config) error {
 	globalSCSILUMap.mutex.Lock()
 	defer globalSCSILUMap.mutex.Unlock()
@@ -85,5 +99,28 @@ func InitSCSILUMap(config *config.Config) error {
 			mappingLUN(deviceID, lun, tgtName)
 		}
 	}
+	return nil
+}
+
+func InitSCSILUMapEx(tgtName, devpath string, deviceID, lun, size, sectorSize uint64, bs api.ReaderWriterAt) error {
+	globalSCSILUMap.mutex.Lock()
+	defer globalSCSILUMap.mutex.Unlock()
+
+	lu, err := NewSCSILu(deviceID, "RemBs:"+devpath, true)
+	if err != nil {
+		return errors.New("Init SCSI LU map error.")
+	}
+	globalSCSILUMap.AllDevices[deviceID] = lu
+
+	/* TODO workaround for now */
+	globalSCSILUMap.TargetsBSMap[tgtName] = bs
+	lu.Size = size
+	err = lu.Storage.Open(lu, tgtName)
+
+	/*lu.Storage.Size(lu)*/
+	lu.DeviceProtocol.InitLu(lu)
+
+	mappingLUN(deviceID, lun, tgtName)
+
 	return nil
 }
