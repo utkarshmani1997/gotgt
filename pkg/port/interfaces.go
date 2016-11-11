@@ -16,7 +16,7 @@ limitations under the License.
 
 package port
 
-import "github.com/gostor/gotgt/pkg/api"
+import "github.com/openebs/gotgt/pkg/api"
 
 type SCSITargetDriver interface {
 	Init() error

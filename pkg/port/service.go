@@ -19,8 +19,8 @@ package port
 import (
 	"fmt"
 
-	"github.com/gostor/gotgt/pkg/config"
-	"github.com/gostor/gotgt/pkg/scsi"
+	"github.com/openebs/gotgt/pkg/config"
+	"github.com/openebs/gotgt/pkg/scsi"
 )
 
 type SCSITargetService interface {

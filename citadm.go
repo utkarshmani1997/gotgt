@@ -23,8 +23,8 @@ import (
 	"os"
 
 	"github.com/docker/go-connections/sockets"
-	"github.com/gostor/gotgt/cmd"
-	"github.com/gostor/gotgt/pkg/api/client"
+	"github.com/openebs/gotgt/cmd"
+	"github.com/openebs/gotgt/pkg/api/client"
 )
 
 func main() {

@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/gostor/gotgt/pkg/api"
-	"github.com/gostor/gotgt/pkg/config"
+	"github.com/openebs/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/config"
 )
 
 type BackendType string

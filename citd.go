@@ -28,12 +28,12 @@ import (
 
 	glog "github.com/Sirupsen/logrus"
 
-	"github.com/gostor/gotgt/pkg/apiserver"
-	"github.com/gostor/gotgt/pkg/config"
-	"github.com/gostor/gotgt/pkg/port"
-	_ "github.com/gostor/gotgt/pkg/port/iscsit"
-	"github.com/gostor/gotgt/pkg/scsi"
-	_ "github.com/gostor/gotgt/pkg/scsi/backingstore"
+	"github.com/openebs/gotgt/pkg/apiserver"
+	"github.com/openebs/gotgt/pkg/config"
+	"github.com/openebs/gotgt/pkg/port"
+	_ "github.com/openebs/gotgt/pkg/port/iscsit"
+	"github.com/openebs/gotgt/pkg/scsi"
+	_ "github.com/openebs/gotgt/pkg/scsi/backingstore"
 )
 
 func main() {

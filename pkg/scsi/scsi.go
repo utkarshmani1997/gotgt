@@ -24,7 +24,7 @@ import (
 	"unsafe"
 
 	glog "github.com/Sirupsen/logrus"
-	"github.com/gostor/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/api"
 )
 
 type SCSITargetService struct {

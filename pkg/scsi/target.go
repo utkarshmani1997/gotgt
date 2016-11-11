@@ -21,7 +21,7 @@ import (
 	"unsafe"
 
 	glog "github.com/Sirupsen/logrus"
-	"github.com/gostor/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/api"
 )
 
 func (s *SCSITargetService) NewSCSITarget(tid int, driverName, name string) (*api.SCSITarget, error) {

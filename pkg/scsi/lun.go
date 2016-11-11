@@ -20,7 +20,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/gostor/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/api"
 )
 
 /*

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gostor/gotgt/pkg/util"
+	"github.com/openebs/gotgt/pkg/util"
 )
 
 type OpCode int

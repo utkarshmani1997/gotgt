@@ -9,7 +9,7 @@ package cancellable
 import (
 	"net/http"
 
-	"github.com/gostor/gotgt/pkg/api/client/transport"
+	"github.com/openebs/gotgt/pkg/api/client/transport"
 )
 
 func canceler(client transport.Sender, req *http.Request) func() {

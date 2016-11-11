@@ -15,7 +15,7 @@ limitations under the License.
 */
 package router
 
-import "github.com/gostor/gotgt/pkg/apiserver/httputils"
+import "github.com/openebs/gotgt/pkg/apiserver/httputils"
 
 // Router defines an interface to specify a group of routes to add the the docker server.
 type Router interface {

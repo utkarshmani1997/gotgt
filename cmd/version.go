@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/gostor/gotgt/pkg/api/client"
-	"github.com/gostor/gotgt/pkg/version"
+	"github.com/openebs/gotgt/pkg/api/client"
+	"github.com/openebs/gotgt/pkg/version"
 	"github.com/spf13/cobra"
 )
 

@@ -19,8 +19,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/gostor/gotgt/pkg/api"
-	"github.com/gostor/gotgt/pkg/api/client"
+	"github.com/openebs/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/api/client"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
 )

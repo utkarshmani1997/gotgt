@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/gostor/gotgt/pkg/api/client/transport/cancellable"
+	"github.com/openebs/gotgt/pkg/api/client/transport/cancellable"
 	"golang.org/x/net/context"
 )
 

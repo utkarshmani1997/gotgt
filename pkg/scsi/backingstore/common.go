@@ -23,9 +23,9 @@ import (
 	"os"
 
 	glog "github.com/Sirupsen/logrus"
-	"github.com/gostor/gotgt/pkg/api"
-	"github.com/gostor/gotgt/pkg/scsi"
-	"github.com/gostor/gotgt/pkg/util"
+	"github.com/openebs/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/scsi"
+	"github.com/openebs/gotgt/pkg/util"
 )
 
 func init() {

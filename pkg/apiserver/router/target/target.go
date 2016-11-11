@@ -18,9 +18,9 @@ package target
 import (
 	"net/http"
 
-	"github.com/gostor/gotgt/pkg/apiserver/httputils"
-	"github.com/gostor/gotgt/pkg/apiserver/router"
-	"github.com/gostor/gotgt/pkg/scsi"
+	"github.com/openebs/gotgt/pkg/apiserver/httputils"
+	"github.com/openebs/gotgt/pkg/apiserver/router"
+	"github.com/openebs/gotgt/pkg/scsi"
 	"golang.org/x/net/context"
 )
 

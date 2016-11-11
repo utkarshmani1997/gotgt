@@ -18,7 +18,7 @@ package discovery
 import (
 	"net/http"
 
-	"github.com/gostor/gotgt/pkg/apiserver/router"
+	"github.com/openebs/gotgt/pkg/apiserver/router"
 	"golang.org/x/net/context"
 )
 

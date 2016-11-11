@@ -25,11 +25,11 @@ import (
 	"strconv"
 
 	glog "github.com/Sirupsen/logrus"
-	"github.com/gostor/gotgt/pkg/api"
-	"github.com/gostor/gotgt/pkg/config"
-	"github.com/gostor/gotgt/pkg/port"
-	"github.com/gostor/gotgt/pkg/scsi"
-	"github.com/gostor/gotgt/pkg/util"
+	"github.com/openebs/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/config"
+	"github.com/openebs/gotgt/pkg/port"
+	"github.com/openebs/gotgt/pkg/scsi"
+	"github.com/openebs/gotgt/pkg/util"
 )
 
 type ISCSITargetService struct {

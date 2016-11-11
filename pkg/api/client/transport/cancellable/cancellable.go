@@ -9,7 +9,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/gostor/gotgt/pkg/api/client/transport"
+	"github.com/openebs/gotgt/pkg/api/client/transport"
 	"golang.org/x/net/context"
 )
 

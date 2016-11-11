@@ -5,9 +5,9 @@ Simple Golang SCSI Target framework, this includes two binaries, one is `citadm`
 ## Build
 
 ```
-$ mkdir -p $GOPATH/src/github.com/gostor/
-$ cd $GOPATH/src/github.com/gostor/
-$ git clone https://github.com/gostor/gotgt gotgt
+$ mkdir -p $GOPATH/src/github.com/openebs/
+$ cd $GOPATH/src/github.com/openebs/
+$ git clone https://github.com/openebs/gotgt gotgt
 $ cd gotgt
 $ ./autogen.sh
 $ ./configure
@@ -34,7 +34,7 @@ Currenty, there is lack of commands to operate the target and LU, however you ca
     }
   ],
   "iscsitargets":{
-    "iqn.2016-09.com.gotgt.gostor:02:example-tgt-0":{
+    "iqn.2016-09.com.openebs.jiva:02:example-tgt-0":{
       "tpgts":{
         "1":[0]
       },
@@ -51,7 +51,7 @@ Currenty, there is lack of commands to operate the target and LU, however you ca
 
 ## Test
 
-You can test this with [open-iscsi](http://www.open-iscsi.com/) or [libiscsi](https://github.com/gostor/libiscsi).
+You can test this with [open-iscsi](http://www.open-iscsi.com/) or [libiscsi](https://github.com/openebs/libiscsi).
 
 ## Roadmap
 * Auth (p3)

@@ -18,7 +18,7 @@ package client
 import (
 	"encoding/json"
 
-	"github.com/gostor/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/api"
 	"golang.org/x/net/context"
 )
 

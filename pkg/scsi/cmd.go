@@ -17,7 +17,7 @@ limitations under the License.
 package scsi
 
 import (
-	"github.com/gostor/gotgt/pkg/util"
+	"github.com/openebs/gotgt/pkg/util"
 )
 
 type SCSIPRServiceAction byte
