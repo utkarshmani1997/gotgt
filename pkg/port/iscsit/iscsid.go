@@ -477,7 +477,6 @@ func iscsiExecReject(conn *iscsiConnection) error {
 }
 
 func iscsiExecR2T(conn *iscsiConnection) error {
-	conn.session.ExpCmdSN += 1
 	conn.txTask = &iscsiTask{conn: conn, cmd: conn.req, tag: conn.req.TaskTag, scmd: &api.SCSICommand{}}
 	conn.txIOState = IOSTATE_TX_BHS
 	conn.statSN += 1
@@ -612,6 +611,7 @@ func (s *ISCSITargetService) scsiCommandHandler(conn *iscsiConnection) (err erro
 				task.state = taskPending
 				conn.session.PendingTasks.Push(task)
 				conn.rxTask = task
+				conn.session.ExpCmdSN += 1
 				iscsiExecR2T(conn)
 				break
 			}
