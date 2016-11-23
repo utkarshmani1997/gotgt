@@ -23,6 +23,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"sync"
 
 	glog "github.com/Sirupsen/logrus"
 	"github.com/openebs/gotgt/pkg/api"
@@ -36,18 +37,46 @@ type ISCSITargetService struct {
 	SCSI         *scsi.SCSITargetService
 	Name         string
 	iSCSITargets map[string]*ISCSITarget
+	done         chan bool
+	listen       net.Listener
+	state        uint8
+	lock         *sync.RWMutex
 }
 
 func init() {
 	port.RegisterTargetService("iscsi", NewISCSITargetService)
 }
 
+const (
+	STATE_INIT = iota
+	STATE_RUNNING
+	STATE_SHUTTING_DOWN
+	STATE_TERMINATE
+)
+
 func NewISCSITargetService(base *scsi.SCSITargetService) (port.SCSITargetService, error) {
 	return &ISCSITargetService{
 		Name:         "iscsi",
 		iSCSITargets: map[string]*ISCSITarget{},
 		SCSI:         base,
+		done:         make(chan bool, 1),
+		state:        STATE_INIT,
+		lock:         &sync.RWMutex{},
 	}, nil
+}
+
+func (s *ISCSITargetService) getState() uint8 {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	return s.state
+}
+
+func (s *ISCSITargetService) setState(st uint8) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	s.state = st
 }
 
 func (s *ISCSITargetService) NewTarget(tgtName string, configInfo *config.Config) (port.SCSITargetDriver, error) {
@@ -126,20 +155,48 @@ func (s *ISCSITargetService) HasPortal(tgtName string, tpgt uint16, portal strin
 	}
 }
 
+// Stop the server by closing the listener
+// todo: handling established connections
+func (s *ISCSITargetService) Stop() error {
+	if s.getState() != STATE_RUNNING {
+		fmt.Printf("SKIP Closing Listener...  state is %v\n", s.getState())
+		return nil
+	}
+	s.setState(STATE_SHUTTING_DOWN)
+	s.done <- true
+
+	fmt.Println("Closing Listener ...")
+	s.listen.Close() // Accept will see an error
+	s.setState(STATE_TERMINATE)
+
+	return nil
+}
+
 func (s *ISCSITargetService) Run() error {
-	l, err := net.Listen("tcp", ":3260")
+	var err error
+	s.listen, err = net.Listen("tcp", ":3260")
 	if err != nil {
 		glog.Error(err)
 		os.Exit(1)
 	}
-	defer l.Close()
-
+	defer func() {
+		s.setState(STATE_SHUTTING_DOWN)
+		s.done <- true
+		s.listen.Close()
+		s.setState(STATE_TERMINATE)
+	}()
+	s.setState(STATE_RUNNING)
 	for {
 		glog.Info("Listening ...")
-		conn, err := l.Accept()
+		conn, err := s.listen.Accept()
 		if err != nil {
-			glog.Error(err)
-			continue
+			select {
+			case <-s.done:
+			default:
+				glog.Error(err)
+
+			}
+			return err
 		}
 		glog.Info(conn.LocalAddr().String())
 		glog.Info("Accepting ...")
