@@ -61,6 +61,7 @@ type ISCSICommand struct {
 	RawHeader          []byte
 	DataLen            int
 	RawData            []byte
+	SenseLen	   uint32
 	Final              bool
 	FinalInSeq         bool
 	Immediate          bool
@@ -239,9 +240,19 @@ func (m *ISCSICommand) scsiCmdRespBytes() []byte {
 	buf.WriteByte(byte(m.SCSIResponse))
 	buf.WriteByte(byte(m.Status))
 
-	// Skip through to byte 16
-	for i := 0; i < 3*4; i++ {
+	if m.Status != 0 && m.SenseLen != 0 {
 		buf.WriteByte(0x00)
+		buf.Write(util.MarshalUint64(uint64(m.SenseLen))[5:])
+		fmt.Println(m.RawData)
+		//buf.Write(len(m.RawData)[:3])
+		for i := 0; i < 8; i++ {
+			buf.WriteByte(0x00)
+		}
+	} else {
+		// Skip through to byte 16
+		for i := 0; i < 12; i++ {
+			buf.WriteByte(0x00)
+		}
 	}
 	buf.Write(util.MarshalUint64(uint64(m.TaskTag))[4:])
 	for i := 0; i < 4; i++ {
@@ -252,6 +263,16 @@ func (m *ISCSICommand) scsiCmdRespBytes() []byte {
 	buf.Write(util.MarshalUint64(uint64(m.MaxCmdSN))[4:])
 	for i := 0; i < 3*4; i++ {
 		buf.WriteByte(0x00)
+	}
+	if m.Status != 0 && m.SenseLen != 0 {
+		fmt.Println("SENDS SENSE LENGTH = ", m.SenseLen)
+		//buf.Write(m.RawData)
+		fmt.Println(m.RawData)
+		rd := m.RawData
+		for len(rd)%4 != 0 {
+			rd = append(rd, 0)
+		}
+		buf.Write(rd)
 	}
 
 	return buf.Bytes()

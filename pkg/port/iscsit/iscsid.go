@@ -742,6 +742,7 @@ func (s *ISCSITargetService) scsiCommandHandler(conn *iscsiConnection) (err erro
 				Status:       scmd.Result,
 				SCSIResponse: 0x00,
 				HasStatus:    true,
+				SenseLen:     scmd.SenseLength,
 			}
 			switch scmd.Direction {
 			case api.SCSIDataRead:
@@ -765,6 +766,7 @@ func (s *ISCSITargetService) scsiCommandHandler(conn *iscsiConnection) (err erro
 				resp.OpCode = OpSCSIResp
 			}
 			if scmd.Result != 0 && scmd.SenseBuffer != nil {
+				resp.OpCode = OpSCSIResp
 				resp.RawData = scmd.SenseBuffer.Bytes()
 			}
 			conn.resp = resp
@@ -825,7 +827,11 @@ func (s *ISCSITargetService) scsiCommandHandler(conn *iscsiConnection) (err erro
 				Status:       task.scmd.Result,
 				SCSIResponse: 0x00,
 				HasStatus:    true,
+				SenseLen:     task.scmd.SenseLength,
 			}
+			if task.scmd.Result != 0 && task.scmd.SenseBuffer != nil {
+                                resp.RawData = task.scmd.SenseBuffer.Bytes()
+                        }
 			conn.resp = resp
 		}
 	case OpNoopOut:
