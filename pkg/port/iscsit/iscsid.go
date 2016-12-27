@@ -174,7 +174,15 @@ func (s *ISCSITargetService) Stop() error {
 
 func (s *ISCSITargetService) Run() error {
 	var err error
-	s.listen, err = net.Listen("tcp", ":3260")
+	for _, iSCSITarget := range s.iSCSITargets {
+		for _, iSCSITPGT := range iSCSITarget.TPGTs {
+			for portal, _ := range iSCSITPGT.Portals {
+				if portal != "" {
+					s.listen, err = net.Listen("tcp", portal)
+				}
+			}
+		}
+	}
 	if err != nil {
 		glog.Error(err)
 		os.Exit(1)
