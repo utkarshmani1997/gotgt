@@ -198,7 +198,15 @@ func (s *ISCSITargetDriver) Stop() error {
 
 func (s *ISCSITargetDriver) Run() error {
 	var err error
-	s.listen, err = net.Listen("tcp", ":3260")
+	for _, iSCSITarget := range s.iSCSITargets {
+		for _, iSCSITPGT := range iSCSITarget.TPGTs {
+			for portal, _ := range iSCSITPGT.Portals {
+				if portal != "" {
+					s.listen, err = net.Listen("tcp", portal)
+				}
+			}
+		}
+	}
 	if err != nil {
 		log.Error(err)
 		os.Exit(1)
