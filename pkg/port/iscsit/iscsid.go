@@ -222,11 +222,11 @@ func (s *ISCSITargetService) Run() error {
 func (s *ISCSITargetService) handler(events byte, conn *iscsiConnection) {
 
 	if events&DATAIN != 0 {
-		glog.Infof("rx handler processing...")
+		glog.Debugf("rx handler processing...")
 		go s.rxHandler(conn)
 	}
 	if conn.state != CONN_STATE_CLOSE && events&DATAOUT != 0 {
-		glog.Infof("tx handler processing...")
+		glog.Debugf("tx handler processing...")
 		s.txHandler(conn)
 	}
 	if conn.state == CONN_STATE_CLOSE {
@@ -251,7 +251,7 @@ func (s *ISCSITargetService) rxHandler(conn *iscsiConnection) {
 	for {
 		switch conn.rxIOState {
 		case IOSTATE_RX_BHS:
-			glog.Infof("rx handler: IOSTATE_RX_BHS")
+			glog.Debugf("rx handler: IOSTATE_RX_BHS")
 			buf, length, err := conn.readData(BHS_SIZE)
 			if err != nil {
 				glog.Error(err)
@@ -312,7 +312,7 @@ func (s *ISCSITargetService) rxHandler(conn *iscsiConnection) {
 			cmd.RawData = buf[:length]
 			conn.rxBuffer = append(conn.rxBuffer, buf...)
 			final = true
-			glog.Infof("got command: \n%s", cmd.String())
+			glog.Debugf("got command: \n%s", cmd.String())
 		default:
 			glog.Errorf("error %d %d\n", conn.state, conn.rxIOState)
 			return
@@ -330,20 +330,20 @@ func (s *ISCSITargetService) rxHandler(conn *iscsiConnection) {
 		conn.resp = &ISCSICommand{}
 		switch conn.req.OpCode {
 		case OpLoginReq:
-			glog.Infof("OpLoginReq")
+			glog.Debugf("OpLoginReq")
 			if err := s.iscsiExecLogin(conn); err != nil {
 				glog.Error(err)
 				glog.Warningf("set connection to close")
 				conn.state = CONN_STATE_CLOSE
 			}
 		case OpLogoutReq:
-			glog.Infof("OpLogoutReq")
+			glog.Debugf("OpLogoutReq")
 			if err := iscsiExecLogout(conn); err != nil {
 				glog.Warningf("set connection to close")
 				conn.state = CONN_STATE_CLOSE
 			}
 		case OpTextReq:
-			glog.Infof("OpTextReq")
+			glog.Debugf("OpTextReq")
 			if err := s.iscsiExecText(conn); err != nil {
 				glog.Warningf("set connection to close")
 				conn.state = CONN_STATE_CLOSE
@@ -633,7 +633,7 @@ func (s *ISCSITargetService) txHandler(conn *iscsiConnection) {
 	case CONN_STATE_SECURITY_FULL, CONN_STATE_LOGIN_FULL:
 		if conn.sessionType == SESSION_NORMAL {
 			conn.state = CONN_STATE_KERNEL
-			glog.Infof("CONN_STATE_KERNEL")
+			glog.Debugf("CONN_STATE_KERNEL")
 			conn.state = CONN_STATE_SCSI
 			glog.Debugf("CONN_STATE_SCSI")
 		} else {
@@ -649,7 +649,7 @@ func (s *ISCSITargetService) txHandler(conn *iscsiConnection) {
 		conn.rxIOState = IOSTATE_RX_BHS
 		s.handler(DATAIN, conn)
 	}
-	glog.Infof("%d", conn.state)
+	glog.Debugf("%d", conn.state)
 }
 
 func (s *ISCSITargetService) scsiCommandHandler(conn *iscsiConnection) (err error) {
@@ -733,7 +733,7 @@ func (s *ISCSITargetService) scsiCommandHandler(conn *iscsiConnection) (err erro
 		conn.txIOState = IOSTATE_TX_BHS
 		iscsiExecTMFunction(conn)
 	case OpSCSIOut:
-		glog.Infof("iSCSI Data-out processing...")
+		glog.Debugf("iSCSI Data-out processing...")
 		var task *iscsiTask
 		for _, t := range conn.session.PendingTasks {
 			if t.tag == conn.req.TaskTag {
@@ -751,7 +751,7 @@ func (s *ISCSITargetService) scsiCommandHandler(conn *iscsiConnection) (err erro
 		glog.Debugf("Final: %v", conn.req.Final)
 		glog.Debugf("r2tCount: %v", task.r2tCount)
 		if !conn.req.Final {
-			glog.Infof("Not ready to exec the task")
+			glog.Debugf("Not ready to exec the task")
 			conn.rxIOState = IOSTATE_RX_BHS
 			s.handler(DATAIN, conn)
 			return nil
@@ -763,7 +763,7 @@ func (s *ISCSITargetService) scsiCommandHandler(conn *iscsiConnection) (err erro
 			break
 		}
 		task.offset = 0
-		glog.Infof("Process the Data-out package")
+		glog.Debugf("Process the Data-out package")
 		conn.rxTask = task
 		if err = s.iscsiExecTask(task); err != nil {
 			return
@@ -844,7 +844,7 @@ func (s *ISCSITargetService) iscsiTaskQueueHandler(task *iscsiTask) error {
 			glog.Error(err)
 			return err
 		}
-		glog.Infof("add task(%d) into task queue", task.cmd.CmdSN)
+		glog.Debugf("add task(%d) into task queue", task.cmd.CmdSN)
 		// add this connection into queue and set this task as pending task
 		task.state = taskPending
 		sess.PendingTasks.Push(task)
