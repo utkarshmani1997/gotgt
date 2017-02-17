@@ -17,6 +17,7 @@ limitations under the License.
 package iscsit
 
 import (
+	"io"
 	"net"
 	"sync"
 
@@ -121,7 +122,7 @@ func (c *iscsiConnection) init() {
 
 func (c *iscsiConnection) readData(size int) ([]byte, int, error) {
 	var buf = make([]byte, size)
-	length, err := c.conn.Read(buf)
+	length, err := io.ReadFull(c.conn, buf)
 	if err != nil {
 		return nil, -1, err
 	}
