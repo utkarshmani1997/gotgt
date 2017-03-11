@@ -153,7 +153,7 @@ write:
 			asc = scsi.ASC_READ_ERROR
 			goto sense
 		}
-		glog.Infof("write data at %d for length %d", offset, length)
+		glog.Debugf("write data at %d for length %d", offset, length)
 		var pg *api.ModePage
 		for _, p := range lu.ModePages {
 			if p.Pcode == 0x08 && p.SubPcode == 0 {
@@ -196,7 +196,7 @@ verify:
 			util.Fadvise(bs.File, int64(offset), int64(length), util.POSIX_FADV_WILLNEED)
 		}*/
 	}
-	glog.Infof("io done %s", string(scb))
+	glog.Debugf("io done %s", string(scb))
 sense:
 	if err != nil {
 		glog.Error(err)

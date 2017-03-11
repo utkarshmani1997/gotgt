@@ -79,7 +79,7 @@ func (s *SCSITargetService) AddCommandQueue(tid int, scmd *api.SCSICommand) erro
 	lun := *(*uint64)(unsafe.Pointer(&scmd.Lun))
 	scmd.Device = target.Devices[lun]
 
-	glog.Infof("scsi opcode: 0x%x, LUN: %d:", int(scmd.SCB.Bytes()[0]), binary.LittleEndian.Uint64(scmd.Lun[:]))
+	glog.Debugf("scsi opcode: 0x%x, LUN: %d:", int(scmd.SCB.Bytes()[0]), binary.LittleEndian.Uint64(scmd.Lun[:]))
 
 	if scmd.Device == nil {
 		scmd.Device = target.LUN0

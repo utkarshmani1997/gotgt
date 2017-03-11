@@ -204,7 +204,7 @@ verify:
 			util.Fadvise(bs.File, int64(offset), int64(length), util.POSIX_FADV_WILLNEED)
 		}
 	}
-	glog.Infof("io done %s", string(scb))
+	glog.Debugf("io done %s", string(scb))
 sense:
 	if err != nil {
 		glog.Error(err)

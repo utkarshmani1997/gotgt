@@ -380,6 +380,7 @@ func (s *ISCSITargetService) iscsiExecLogin(conn *iscsiConnection) error {
 			{"InitialR2T", "Yes"},
 			{"MaxBurstLength", "262144"},
 			{"FirstBurstLength", "65536"},
+			{"MaxRecvDataSegmentLength", "65536"},
 			{"DefaultTime2Wait", "2"},
 			{"DefaultTime2Retain", "0"},
 			{"MaxOutstandingR2T", "1"},
@@ -436,6 +437,9 @@ func (s *ISCSITargetService) iscsiExecLogin(conn *iscsiConnection) error {
 	conn.state = CONN_STATE_LOGIN_FULL
 	conn.expCmdSN = cmd.CmdSN
 	conn.statSN += 1
+	conn.maxBurstLength = 262144
+	conn.maxRecvDataSegmentLength = 65536
+	conn.maxSeqCount = conn.maxBurstLength / conn.maxRecvDataSegmentLength
 
 	switch conn.sessionType {
 	case SESSION_NORMAL:
@@ -567,9 +571,11 @@ func iscsiExecR2T(conn *iscsiConnection) error {
 
 func (s *ISCSITargetService) txHandler(conn *iscsiConnection) {
 	var (
-		hdigest uint = 0
-		ddigest uint = 0
-		final   bool = false
+		hdigest uint   = 0
+		ddigest uint   = 0
+		offset  uint32 = 0
+		final   bool   = false
+		count   uint32 = 0
 	)
 	if conn.state == CONN_STATE_SCSI {
 		hdigest = conn.sessionParam[ISCSI_PARAM_HDRDGST_EN].Value & DIGEST_CRC32C
@@ -582,14 +588,42 @@ func (s *ISCSITargetService) txHandler(conn *iscsiConnection) {
 			return
 		}
 	}
+	resp := conn.resp
+	segmentLen := conn.maxRecvDataSegmentLength
+	transferLen := len(resp.RawData)
+	resp.DataSN = 0
+	maxCount := conn.maxSeqCount
+
+	/* send data splitted by segmentLen */
+SendRemainingData:
+	if resp.OpCode == OpSCSIIn {
+		resp.BufferOffset = offset
+		if int(offset+segmentLen) < transferLen {
+			count += 1
+			if count < maxCount {
+				resp.FinalInSeq = false
+				resp.Final = false
+			} else {
+				count = 0
+				resp.FinalInSeq = true
+				resp.Final = false
+			}
+			offset = offset + segmentLen
+			resp.DataLen = int(segmentLen)
+		} else {
+			resp.FinalInSeq = true
+			resp.Final = true
+			resp.DataLen = transferLen - int(offset)
+		}
+	}
 	for {
 		switch conn.txIOState {
 		case IOSTATE_TX_BHS:
 			glog.Debugf("ready to write response")
 			glog.Debugf("%s", conn.resp.String())
-			glog.Debugf("length of RawData is %d", len(conn.resp.RawData))
-			glog.Debugf("length of resp is %d", len(conn.resp.Bytes()))
-			if l, err := conn.write(conn.resp.Bytes()); err != nil {
+			glog.Debugf("length of RawData is %d", len(resp.RawData))
+			glog.Debugf("length of resp is %d", len(resp.Bytes()))
+			if l, err := conn.write(resp.Bytes()); err != nil {
 				glog.Error(err)
 				return
 			} else {
@@ -618,7 +652,13 @@ func (s *ISCSITargetService) txHandler(conn *iscsiConnection) {
 		}
 
 		if final {
-			break
+			if resp.OpCode == OpSCSIIn && conn.resp.Final != true {
+				resp.DataSN++
+				conn.txIOState = IOSTATE_TX_BHS
+				goto SendRemainingData
+			} else {
+				break
+			}
 		}
 	}
 
