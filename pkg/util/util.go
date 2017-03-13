@@ -17,14 +17,22 @@ limitations under the License.
 package util
 
 import (
+	"bytes"
 	"encoding/binary"
 	"os"
+	"sync"
 	"syscall"
 )
 
 type KeyValue struct {
 	Key   string
 	Value string
+}
+
+var WPool = sync.Pool{
+	New: func() interface{} {
+		return new(bytes.Buffer)
+	},
 }
 
 func GetUnalignedUint16(u8 []uint8) uint16 {

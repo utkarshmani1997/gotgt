@@ -708,7 +708,9 @@ func (s *ISCSITargetService) scsiCommandHandler(conn *iscsiConnection) (err erro
 			glog.Debugf("SCSI write, R2T count: %d, unsol Count: %d, offset: %d", task.r2tCount, task.unsolCount, task.offset)
 
 			if task.scmd.OutSDBBuffer.Buffer == nil {
-				task.scmd.OutSDBBuffer.Buffer = bytes.NewBuffer([]byte{})
+				//task.scmd.OutSDBBuffer.Buffer = bytes.NewBuffer([]byte{})
+				task.scmd.OutSDBBuffer.Buffer = util.WPool.Get().(*bytes.Buffer)
+				task.scmd.OutSDBBuffer.Buffer.Grow(int(req.ExpectedDataLen))
 			}
 			task.scmd.OutSDBBuffer.Buffer.Write(conn.req.RawData)
 			if task.r2tCount > 0 {

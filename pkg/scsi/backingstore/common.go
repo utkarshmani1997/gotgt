@@ -206,6 +206,11 @@ verify:
 	}
 	glog.Debugf("io done %s", string(scb))
 sense:
+	if cmd.OutSDBBuffer.Buffer != nil && cmd.OutSDBBuffer.Buffer.Cap() != 0 {
+		cmd.OutSDBBuffer.Buffer.Reset()
+		util.WPool.Put(cmd.OutSDBBuffer.Buffer)
+		cmd.OutSDBBuffer.Buffer = nil
+	}
 	if err != nil {
 		glog.Error(err)
 		return err
