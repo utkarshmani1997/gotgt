@@ -56,7 +56,7 @@ func (sbc SBCSCSIDeviceProtocol) InitLu(lu *api.SCSILu) error {
 	lu.Attrs.SenseFormat = false
 	lu.Attrs.VendorID = SCSI_VendorID
 	lu.Attrs.ProductID = SCSI_ProductID
-	lu.Attrs.ProductRev = version.SCSI_VERSION
+	lu.Attrs.ProductRev = version.VERSION
 
 	/*
 		SCSIID for PAGE83 T10 VENDOR IDENTIFICATION field

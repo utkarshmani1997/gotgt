@@ -188,8 +188,8 @@ const (
 )
 
 const (
-	SCSI_VendorID  = "GOSTOR"
-	SCSI_ProductID = "GOTGT"
+	SCSI_VendorID  = "CLOUDBYT"
+	SCSI_ProductID = "OPENEBS"
 )
 
 func SPCIllegalOp(host int, cmd *api.SCSICommand) api.SAMStat {
