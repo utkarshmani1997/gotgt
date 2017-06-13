@@ -28,6 +28,7 @@ type SCSITargetService interface {
 	Stop() error
 	NewTarget(string, *config.Config) (SCSITargetDriver, error)
 	Stats() Stats
+	Resize(uint64) error
 }
 
 type Stats struct {

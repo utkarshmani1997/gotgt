@@ -100,6 +100,14 @@ func (s *ISCSITargetService) Stats() port.Stats {
 	return stats
 }
 
+func (s *ISCSITargetService) Resize(size uint64) error {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	return s.SCSI.Resize(size)
+
+}
+
 func (s *ISCSITargetService) NewTarget(tgtName string, configInfo *config.Config) (port.SCSITargetDriver, error) {
 	if _, ok := s.iSCSITargets[tgtName]; ok {
 		return nil, fmt.Errorf("target name has been existed")
