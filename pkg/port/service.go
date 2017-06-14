@@ -18,6 +18,7 @@ package port
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/openebs/gotgt/pkg/config"
 	"github.com/openebs/gotgt/pkg/scsi"
@@ -39,12 +40,12 @@ type Stats struct {
 
 	ReadIOPS         int64
 	ReadThroughput   int64
-	ReadLatency      int64
+	ReadLatency      time.Duration
 	AvgReadBlockSize int64
 
 	WriteIOPS         int64
 	WriteThroughput   int64
-	WriteLatency      int64
+	WriteLatency      time.Duration
 	AvgWriteBlockSize int64
 }
 

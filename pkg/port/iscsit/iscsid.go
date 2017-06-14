@@ -627,19 +627,19 @@ func (s *ISCSITargetService) StatsFeed() {
 		ReadIOPS  int64
 		WriteIOPS int64
 
-		TotalReadTimePS     time.Duration
-		ReadsPS             int64
-		ReadLatency         int64
-		ReadThroughput      int64
-		TotalReadBlockCount int64
-		AvgReadBlockSize    int64
+		TotalReadTimePS       time.Duration
+		ReadsPS               int64
+		ReadLatency           time.Duration
+		ReadThroughput        int64
+		TotalReadBlockCountPS int64
+		AvgReadBlockSize      int64
 
-		TotalWriteTimePS     time.Duration
-		WritesPS             int64
-		WriteLatency         int64
-		WriteThroughput      int64
-		TotalWriteBlockCount int64
-		AvgWriteBlockSize    int64
+		TotalWriteTimePS       time.Duration
+		WritesPS               int64
+		WriteLatency           time.Duration
+		WriteThroughput        int64
+		TotalWriteBlockCountPS int64
+		AvgWriteBlockSize      int64
 	)
 
 	ticker := time.NewTicker(1 * time.Second)
@@ -649,9 +649,9 @@ func (s *ISCSITargetService) StatsFeed() {
 		case <-ticker.C:
 			if ReadsPS != 0 {
 				ReadIOPS = ReadsPS
-				ReadLatency = int64(TotalReadTimePS) / ReadsPS
-				AvgReadBlockSize = TotalReadBlockCount / ReadsPS
-				ReadThroughput = AvgReadBlockSize * ReadsPS
+				ReadLatency = TotalReadTimePS / time.Duration(ReadsPS)
+				AvgReadBlockSize = TotalReadBlockCountPS / ReadsPS
+				ReadThroughput = TotalReadBlockCountPS
 			} else {
 				ReadIOPS = 0
 				ReadLatency = 0
@@ -660,9 +660,9 @@ func (s *ISCSITargetService) StatsFeed() {
 			}
 			if WritesPS != 0 {
 				WriteIOPS = WritesPS
-				WriteLatency = int64(TotalWriteTimePS) / WritesPS
-				AvgWriteBlockSize = TotalWriteBlockCount / WritesPS
-				WriteThroughput = AvgWriteBlockSize * WritesPS
+				WriteLatency = TotalWriteTimePS / time.Duration(WritesPS)
+				AvgWriteBlockSize = TotalWriteBlockCountPS / WritesPS
+				WriteThroughput = TotalWriteBlockCountPS
 			} else {
 				WriteIOPS = 0
 				WriteLatency = 0
@@ -673,6 +673,8 @@ func (s *ISCSITargetService) StatsFeed() {
 			TotalReadTimePS = 0
 			WritesPS = 0
 			TotalWriteTimePS = 0
+			TotalReadBlockCountPS = 0
+			TotalWriteBlockCountPS = 0
 		case <-s.stopFeed:
 			return
 		case msg := <-s.feed:
@@ -680,12 +682,12 @@ func (s *ISCSITargetService) StatsFeed() {
 			case api.READ_6, api.READ_10, api.READ_12, api.READ_16:
 				ReadsPS += 1
 				TotalReadTimePS += msg.ElapsedTime
-				TotalReadBlockCount += msg.BlockCount
+				TotalReadBlockCountPS += msg.BlockCount
 				break
 			case api.WRITE_6, api.WRITE_10, api.WRITE_12, api.WRITE_16:
 				WritesPS += 1
 				TotalWriteTimePS += msg.ElapsedTime
-				TotalWriteBlockCount += msg.BlockCount
+				TotalWriteBlockCountPS += msg.BlockCount
 				break
 			}
 		case <-s.statsEnq:
