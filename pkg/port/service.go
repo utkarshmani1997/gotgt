@@ -29,6 +29,7 @@ type SCSITargetService interface {
 	NewTarget(string, *config.Config) (SCSITargetDriver, error)
 	Stats() Stats
 	Resize(uint64) error
+	SetClusterIP(string) error
 }
 
 type Stats struct {
