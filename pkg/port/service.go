@@ -18,7 +18,6 @@ package port
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/openebs/gotgt/pkg/config"
 	"github.com/openebs/gotgt/pkg/scsi"
@@ -38,15 +37,13 @@ type Stats struct {
 	ReplicaCounter  int64
 	SCSIIOCount     map[int]int64
 
-	ReadIOPS         int64
-	ReadThroughput   int64
-	ReadLatency      time.Duration
-	AvgReadBlockSize int64
+	ReadIOPS            int64
+	TotalReadTime       int64
+	TotalReadBlockCount int64
 
-	WriteIOPS         int64
-	WriteThroughput   int64
-	WriteLatency      time.Duration
-	AvgWriteBlockSize int64
+	WriteIOPS            int64
+	TotalWriteTime       int64
+	TotalWriteBlockCount int64
 }
 
 type TargetServiceFunc func(*scsi.SCSITargetService) (SCSITargetService, error)
