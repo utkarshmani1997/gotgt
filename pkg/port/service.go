@@ -44,6 +44,9 @@ type Stats struct {
 	WriteIOPS            int64
 	TotalWriteTime       int64
 	TotalWriteBlockCount int64
+	UsedLogicalBlocks    int64
+	UsedBlocks           int64
+	SectorSize           int64
 }
 
 type TargetServiceFunc func(*scsi.SCSITargetService) (SCSITargetService, error)
