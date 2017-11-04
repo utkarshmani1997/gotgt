@@ -503,7 +503,10 @@ func (s *ISCSITargetDriver) iscsiExecText(conn *iscsiConnection) error {
 						}
 					}
 				} else {
-					result = append(result, util.KeyValue{"TargetAddress", s.clusterIP})
+					for _, tpgt := range tgt.TPGTs {
+						targetPort := fmt.Sprintf("%s,%d", s.clusterIP, tpgt.TPGT)
+						result = append(result, util.KeyValue{"TargetAddress", targetPort})
+					}
 				}
 			}
 		}
