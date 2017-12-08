@@ -27,8 +27,23 @@ type SCSITargetDriver interface {
 	Run() error
 	Stop() error
 	NewTarget(string, *config.Config) error
+	Stats() Stats
 }
+type Stats struct {
+	RevisionCounter int64
+	ReplicaCounter  int64
+	SCSIIOCount     map[int]int64
 
+	ReadIOPS         int64
+	ReadThroughput   int64
+	ReadLatency      int64
+	AvgReadBlockSize int64
+
+	WriteIOPS         int64
+	WriteThroughput   int64
+	WriteLatency      int64
+	AvgWriteBlockSize int64
+}
 type TargetDriverFunc func(*SCSITargetService) (SCSITargetDriver, error)
 
 var registeredPlugins = map[string](TargetDriverFunc){}

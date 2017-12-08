@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gostor/gotgt/pkg/util"
@@ -124,6 +125,7 @@ type ISCSICommand struct {
 	StatusDetail uint8
 
 	// SCSI commands
+	SCSIOpCode      byte
 	ExpectedDataLen uint32
 	CDB             []byte
 	Status          byte
@@ -140,6 +142,7 @@ type ISCSICommand struct {
 	HasStatus    bool
 	DataSN       uint32
 	BufferOffset uint32
+	StartTime    time.Time
 }
 
 func (cmd *ISCSICommand) Bytes() []byte {
@@ -225,6 +228,7 @@ func parseHeader(data []byte) (*ISCSICommand, error) {
 	m.AHSLen = int(data[4]) * 4
 	m.DataLen = int(ParseUint(data[5:8]))
 	m.TaskTag = uint32(ParseUint(data[16:20]))
+	m.StartTime = time.Now()
 	switch m.OpCode {
 	case OpSCSICmd:
 		m.LUN = [8]byte{data[9]}
@@ -233,6 +237,7 @@ func parseHeader(data []byte) (*ISCSICommand, error) {
 		m.Read = data[1]&0x40 == 0x40
 		m.Write = data[1]&0x20 == 0x20
 		m.CDB = data[32:48]
+		m.SCSIOpCode = m.CDB[0]
 		m.ExpStatSN = uint32(ParseUint(data[28:32]))
 		fallthrough
 	case OpSCSITaskReq:
