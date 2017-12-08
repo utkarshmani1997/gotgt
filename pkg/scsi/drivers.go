@@ -28,6 +28,7 @@ type SCSITargetDriver interface {
 	Stop() error
 	NewTarget(string, *config.Config) error
 	Stats() Stats
+	Resize(uint64) error
 }
 type Stats struct {
 	RevisionCounter int64

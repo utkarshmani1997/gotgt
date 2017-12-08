@@ -52,6 +52,20 @@ func (s *SCSITargetService) GetTargetList() ([]api.SCSITarget, error) {
 	return result, nil
 }
 
+func (s *SCSITargetService) Resize(size uint64) error {
+	s.mutex.Lock()
+	//TODO for multiple LUNs
+	for _, t := range s.Targets {
+		if t.Devices != nil {
+			for i := range t.Devices {
+				t.Devices[i].Size = size
+			}
+		}
+	}
+	s.mutex.Unlock()
+	return nil
+}
+
 func (s *SCSITargetService) AddCommandQueue(tid int, scmd *api.SCSICommand) error {
 	var (
 		target *api.SCSITarget

@@ -125,6 +125,15 @@ func (s *ISCSITargetService) Stats() port.Stats {
 	stats.SCSIIOCount = s.SCSIIOCount
 	return stats
 }
+
+func (s *ISCSITargetService) Resize(size uint64) error {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	return s.SCSI.Resize(size)
+
+}
+
 func (s *ISCSITargetDriver) NewTarget(tgtName string, configInfo *config.Config) error {
 	if _, ok := s.iSCSITargets[tgtName]; ok {
 		return fmt.Errorf("target name has been existed")
