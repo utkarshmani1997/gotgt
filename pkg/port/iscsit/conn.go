@@ -22,8 +22,8 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/gostor/gotgt/pkg/api"
-	"github.com/gostor/gotgt/pkg/util"
+	"github.com/openebs/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/util"
 )
 
 const (

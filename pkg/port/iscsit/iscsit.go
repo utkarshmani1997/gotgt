@@ -22,7 +22,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gostor/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/api"
 )
 
 const iSCSIDriverName = "iscsi"

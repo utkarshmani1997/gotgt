@@ -26,11 +26,11 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/glog"
-	"github.com/gostor/gotgt/pkg/api"
-	"github.com/gostor/gotgt/pkg/config"
-	"github.com/gostor/gotgt/pkg/scsi"
-	"github.com/gostor/gotgt/pkg/util"
-	"github.com/gostor/gotgt/pkg/util/pool"
+	"github.com/openebs/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/config"
+	"github.com/openebs/gotgt/pkg/scsi"
+	"github.com/openebs/gotgt/pkg/util"
+	"github.com/openebs/gotgt/pkg/util/pool"
 )
 
 const (

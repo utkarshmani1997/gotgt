@@ -22,9 +22,9 @@ import (
 	"io"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/gostor/gotgt/pkg/api"
-	"github.com/gostor/gotgt/pkg/util"
-	"github.com/gostor/gotgt/pkg/util/pool"
+	"github.com/openebs/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/util"
+	"github.com/openebs/gotgt/pkg/util/pool"
 )
 
 type BaseBackingStore struct {

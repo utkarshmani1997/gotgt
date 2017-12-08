@@ -17,7 +17,7 @@ limitations under the License.
 package scsi
 
 import (
-	"github.com/gostor/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/api"
 	"github.com/satori/go.uuid"
 )
 

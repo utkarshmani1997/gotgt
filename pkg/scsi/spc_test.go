@@ -22,7 +22,7 @@ import (
 	"encoding/binary"
 	"testing"
 
-	"github.com/gostor/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/api"
 )
 
 // Test SPCReportLuns function

@@ -21,7 +21,7 @@ import (
 	"unsafe"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/gostor/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/api"
 	"github.com/satori/go.uuid"
 )
 

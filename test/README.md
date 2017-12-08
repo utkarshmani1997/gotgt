@@ -43,6 +43,6 @@ That is not foolproof however, and you may need to do some manually.
 ## Making contributions
 As a way to get you started and get you familiar with the gotgt project,
 you can check out this file at issue [#55]
-(https://github.com/gostor/gotgt/issues/55)
+(https://github.com/openebs/gotgt/issues/55)
 to improve the target library code to pass more test cases (by libiscsi). 
 Some are relatively straightforward.

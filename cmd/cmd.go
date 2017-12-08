@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gostor/gotgt/pkg/api/client"
+	"github.com/openebs/gotgt/pkg/api/client"
 	"github.com/spf13/cobra"
 )
 

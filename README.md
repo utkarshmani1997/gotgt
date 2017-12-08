@@ -1,4 +1,4 @@
-## gotgt [![Build Status](https://travis-ci.org/gostor/gotgt.svg)](https://travis-ci.org/gostor/gotgt)
+## gotgt [![Build Status](https://travis-ci.org/openebs/gotgt.svg)](https://travis-ci.org/openebs/gotgt)
 
 The gotgt project is a simple SCSI Target framework implemented in golang built for performance and density.
 Very briefly, this iSCSI/SCSI target Go implementation can be included/imported as a library to allow upper layer iSCSI clients to communicate to the actual SCSI devices. The target configuration is static with a json file for the time being. The core functionality of this target library provides the iSCSI/SCSI protocol services. A simple flat file based LUN target implementation is provided with plug-in interface. In the future, a formal plugin mechanism will be provided and supported to work with more sophisticated backend storage arrays.
@@ -20,9 +20,9 @@ There is a only on binary name `gotgt`, you can start a daemon via `gotgt daemon
 You will need to make sure that you have Go installed on your system and the automake package is installed also. The `gotgt` repository should be cloned in your $GOPATH.
 
 ```
-$ mkdir -p $GOPATH/src/github.com/gostor/
-$ cd $GOPATH/src/github.com/gostor/
-$ git clone https://github.com/gostor/gotgt gotgt
+$ mkdir -p $GOPATH/src/github.com/openebs/
+$ cd $GOPATH/src/github.com/openebs/
+$ git clone https://github.com/openebs/gotgt gotgt
 $ cd gotgt
 $ ./autogen.sh
 $ ./configure
@@ -47,7 +47,7 @@ Note that the examples directory is intended to show static configurations that 
 
 ### Test
 
-You can test this with [open-iscsi](http://www.open-iscsi.com/) or [libiscsi](https://github.com/gostor/libiscsi).
+You can test this with [open-iscsi](http://www.open-iscsi.com/) or [libiscsi](https://github.com/openebs/libiscsi).
 For more information and example test scripts, please refer to the [test directory](./test).
 
 ## Performance

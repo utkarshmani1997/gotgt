@@ -23,7 +23,7 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/gostor/gotgt/pkg/util"
+	"github.com/openebs/gotgt/pkg/util"
 )
 
 type OpCode int

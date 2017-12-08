@@ -22,8 +22,8 @@ import (
 	"io"
 
 	"github.com/golang/glog"
-	"github.com/gostor/gotgt/pkg/api"
-	"github.com/gostor/gotgt/pkg/scsi"
+	"github.com/openebs/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/scsi"
 )
 
 func init() {

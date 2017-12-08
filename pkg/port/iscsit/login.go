@@ -20,7 +20,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/gostor/gotgt/pkg/util"
+	"github.com/openebs/gotgt/pkg/util"
 )
 
 var (

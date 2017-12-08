@@ -18,9 +18,9 @@ ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 WORKDIR $GOPATH
 
-RUN mkdir -p /go/src/github.com/gostor/gotgt
-ADD . /go/src/github.com/gostor/gotgt
-WORKDIR ${GOPATH}/src/github.com/gostor/gotgt
+RUN mkdir -p /go/src/github.com/openebs/gotgt
+ADD . /go/src/github.com/openebs/gotgt
+WORKDIR ${GOPATH}/src/github.com/openebs/gotgt
 RUN ./autogen.sh
 RUN ./configure
 RUN make

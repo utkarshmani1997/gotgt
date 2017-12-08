@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/gostor/gotgt",
+	"ImportPath": "github.com/openebs/gotgt",
 	"GoVersion": "go1.6",
 	"GodepVersion": "v63",
 	"Packages": [

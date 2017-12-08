@@ -23,7 +23,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gostor/gotgt/pkg/homedir"
+	"github.com/openebs/gotgt/pkg/homedir"
 )
 
 /*

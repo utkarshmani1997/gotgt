@@ -29,11 +29,11 @@ import (
 	systemdActivation "github.com/coreos/go-systemd/activation"
 	"github.com/docker/go-connections/sockets"
 	"github.com/gorilla/mux"
-	"github.com/gostor/gotgt/pkg/apiserver/httputils"
-	"github.com/gostor/gotgt/pkg/apiserver/router"
-	"github.com/gostor/gotgt/pkg/apiserver/router/discovery"
-	"github.com/gostor/gotgt/pkg/apiserver/router/lu"
-	"github.com/gostor/gotgt/pkg/apiserver/router/target"
+	"github.com/openebs/gotgt/pkg/apiserver/httputils"
+	"github.com/openebs/gotgt/pkg/apiserver/router"
+	"github.com/openebs/gotgt/pkg/apiserver/router/discovery"
+	"github.com/openebs/gotgt/pkg/apiserver/router/lu"
+	"github.com/openebs/gotgt/pkg/apiserver/router/target"
 	"golang.org/x/net/context"
 )
 

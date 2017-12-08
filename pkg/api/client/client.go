@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/gostor/gotgt/pkg/api/client/transport"
+	"github.com/openebs/gotgt/pkg/api/client/transport"
 )
 
 type Client struct {

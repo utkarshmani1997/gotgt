@@ -3,7 +3,7 @@ package iscsit
 import (
 	"bytes"
 
-	"github.com/gostor/gotgt/pkg/util"
+	"github.com/openebs/gotgt/pkg/util"
 )
 
 func (m *ISCSICommand) logoutRespBytes() []byte {

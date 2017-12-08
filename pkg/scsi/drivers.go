@@ -20,7 +20,7 @@ package scsi
 import (
 	"fmt"
 
-	"github.com/gostor/gotgt/pkg/config"
+	"github.com/openebs/gotgt/pkg/config"
 )
 
 type SCSITargetDriver interface {

@@ -26,7 +26,7 @@ import (
 	"strings"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/gostor/gotgt/pkg/version"
+	"github.com/openebs/gotgt/pkg/version"
 	"golang.org/x/net/context"
 )
 

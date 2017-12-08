@@ -23,8 +23,8 @@ import (
 	"sync"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/gostor/gotgt/pkg/api"
-	"github.com/gostor/gotgt/pkg/scsi"
+	"github.com/openebs/gotgt/pkg/api"
+	"github.com/openebs/gotgt/pkg/scsi"
 	"github.com/satori/go.uuid"
 )
 
