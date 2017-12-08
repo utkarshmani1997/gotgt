@@ -229,8 +229,8 @@ const (
 )
 
 const (
-	SCSIVendorID  = "GOSTOR"
-	SCSIProductID = "GOTGT"
+	SCSIVendorID  = "CLOUDBYT"
+	SCSIProductID = "OPENEBS"
 )
 
 /*

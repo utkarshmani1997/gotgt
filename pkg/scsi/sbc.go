@@ -65,7 +65,7 @@ func (sbc SBCSCSIDeviceProtocol) InitLu(lu *api.SCSILu) error {
 	lu.Attrs.SenseFormat = false
 	lu.Attrs.VendorID = SCSIVendorID
 	lu.Attrs.ProductID = SCSIProductID
-	lu.Attrs.ProductRev = version.SCSIVersion
+	lu.Attrs.ProductRev = version.VERSION
 	lu.Attrs.SCSIID = fmt.Sprintf("gotgt-scsi-%d%d", 0, lu.UUID)
 	lu.Attrs.SCSISN = fmt.Sprintf("gotgt-beaf-%d%d", 0, lu.UUID)
 
