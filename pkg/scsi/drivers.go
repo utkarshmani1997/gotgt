@@ -25,6 +25,7 @@ import (
 
 type SCSITargetDriver interface {
 	Run() error
+	Stop() error
 	NewTarget(string, *config.Config) error
 }
 

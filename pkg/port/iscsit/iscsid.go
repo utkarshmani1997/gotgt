@@ -37,24 +37,19 @@ const (
 )
 
 type ISCSITargetDriver struct {
-	SCSI          *scsi.SCSITargetService
-	Name          string
-	iSCSITargets  map[string]*ISCSITarget
+	SCSI         *scsi.SCSITargetService
+	Name         string
+	iSCSITargets map[string]*ISCSITarget
+	done         chan bool
+	listen       net.Listener
+	state        uint8
+	lock         *sync.RWMutex
 	TSIHPool      map[uint16]bool
 	TSIHPoolMutex sync.Mutex
 }
 
 func init() {
 	scsi.RegisterTargetDriver(iSCSIDriverName, NewISCSITargetDriver)
-}
-
-func NewISCSITargetDriver(base *scsi.SCSITargetService) (scsi.SCSITargetDriver, error) {
-	return &ISCSITargetDriver{
-		Name:         iSCSIDriverName,
-		iSCSITargets: map[string]*ISCSITarget{},
-		SCSI:         base,
-		TSIHPool:     map[uint16]bool{0: true, 65535: true},
-	}, nil
 }
 
 func (s *ISCSITargetDriver) AllocTSIH() uint16 {
@@ -76,6 +71,40 @@ func (s *ISCSITargetDriver) ReleaseTSIH(tsih uint16) {
 	s.TSIHPoolMutex.Lock()
 	delete(s.TSIHPool, tsih)
 	s.TSIHPoolMutex.Unlock()
+}
+
+=======
+const (
+	STATE_INIT = iota
+	STATE_RUNNING
+	STATE_SHUTTING_DOWN
+	STATE_TERMINATE
+)
+
+func NewISCSITargetDriver(base *scsi.SCSITargetService) (scsi.SCSITargetDriver, error) {
+	return &ISCSITargetDriver{
+		Name:         iSCSIDriverName,
+		iSCSITargets: map[string]*ISCSITarget{},
+		SCSI:         base,
+		done:         make(chan bool, 1),
+		state:        STATE_INIT,
+		lock:         &sync.RWMutex{},
+		TSIHPool:     map[uint16]bool{0: true, 65535: true},
+	}, nil
+}
+
+func (s *ISCSITargetDriver) getState() uint8 {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	return s.state
+}
+
+func (s *ISCSITargetDriver) setState(st uint8) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	s.state = st
 }
 
 func (s *ISCSITargetDriver) NewTarget(tgtName string, configInfo *config.Config) error {
@@ -150,19 +179,48 @@ func (s *ISCSITargetDriver) HasPortal(tgtName string, tpgt uint16, portal string
 	}
 }
 
+// Stop the server by closing the listener
+// todo: handling established connections
+func (s *ISCSITargetDriver) Stop() error {
+	if s.getState() != STATE_RUNNING {
+		fmt.Printf("SKIP Closing Listener...  state is %v\n", s.getState())
+		return nil
+	}
+	s.setState(STATE_SHUTTING_DOWN)
+	s.done <- true
+
+	fmt.Println("Closing Listener ...")
+	s.listen.Close() // Accept will see an error
+	s.setState(STATE_TERMINATE)
+
+	return nil
+}
+
 func (s *ISCSITargetDriver) Run() error {
-	l, err := net.Listen("tcp", ":3260")
+	var err error
+	s.listen, err = net.Listen("tcp", ":3260")
 	if err != nil {
 		log.Error(err)
 		os.Exit(1)
 	}
-
+	defer func() {
+		s.setState(STATE_SHUTTING_DOWN)
+		s.done <- true
+		s.listen.Close()
+		s.setState(STATE_TERMINATE)
+	}()
+	s.setState(STATE_RUNNING)
 	for {
-		log.Info("Listening ...")
-		conn, err := l.Accept()
+		glog.Info("Listening ...")
+		conn, err := s.listen.Accept()
 		if err != nil {
-			log.Error(err)
-			continue
+			select {
+			case <-s.done:
+			default:
+				glog.Error(err)
+
+			}
+			return err
 		}
 		log.Info(conn.LocalAddr().String())
 		log.Info("Accepting ...")
