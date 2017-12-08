@@ -48,6 +48,7 @@ type ISCSITargetDriver struct {
 	statsEnqRes  chan port.Stats
 	SCSIIOCount  map[int]int64
 	listen       net.Listener
+	clusterIP    string
 	state        uint8
 	lock         *sync.RWMutex
 	TSIHPool      map[uint16]bool
@@ -132,6 +133,11 @@ func (s *ISCSITargetService) Resize(size uint64) error {
 
 	return s.SCSI.Resize(size)
 
+}
+
+func (s *ISCSITargetService) SetClusterIP(clusterIP string) error {
+	s.clusterIP = clusterIP
+	return nil
 }
 
 func (s *ISCSITargetDriver) NewTarget(tgtName string, configInfo *config.Config) error {
@@ -488,11 +494,15 @@ func (s *ISCSITargetDriver) iscsiExecText(conn *iscsiConnection) error {
 				//log.Debugf("iscsi target portals: %v", tgt.Portals)
 
 				result = append(result, util.KeyValue{"TargetName", name})
-				for _, tpgt := range tgt.TPGTs {
-					for portal := range tpgt.Portals {
-						targetPort := fmt.Sprintf("%s,%d", portal, tpgt.TPGT)
-						result = append(result, util.KeyValue{"TargetAddress", targetPort})
+				if s.clusterIP == "" {
+					for _, tpgt := range tgt.TPGTs {
+						for portal := range tpgt.Portals {
+							targetPort := fmt.Sprintf("%s,%d", portal, tpgt.TPGT)
+							result = append(result, util.KeyValue{"TargetAddress", targetPort})
+						}
 					}
+				} else {
+					result = append(result, util.KeyValue{"TargetAddress", s.clusterIP})
 				}
 			}
 		}

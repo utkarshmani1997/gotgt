@@ -29,6 +29,7 @@ type SCSITargetDriver interface {
 	NewTarget(string, *config.Config) error
 	Stats() Stats
 	Resize(uint64) error
+	SetClusterIP(string) error
 }
 type Stats struct {
 	RevisionCounter int64
