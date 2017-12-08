@@ -544,82 +544,41 @@ type Msg struct {
 func (s *ISCSITargetService) StatsFeed() {
 	var (
 		ReadIOPS  int64
+		TotalReadTime       int64
+		TotalReadBlockCount int64
+
 		WriteIOPS int64
+		TotalWriteTime       int64
+		TotalWriteBlockCount int64
 
-		TotalReadTimePS       time.Duration
-		ReadsPS               int64
-		ReadLatency           time.Duration
-		ReadThroughput        int64
-		TotalReadBlockCountPS int64
-		AvgReadBlockSize      int64
-
-		TotalWriteTimePS       time.Duration
-		WritesPS               int64
-		WriteLatency           time.Duration
-		WriteThroughput        int64
-		TotalWriteBlockCountPS int64
-		AvgWriteBlockSize      int64
 	)
 
-	ticker := time.NewTicker(1 * time.Second)
-	defer ticker.Stop()
 	for {
 		select {
-		case <-ticker.C:
-			if ReadsPS != 0 {
-				ReadIOPS = ReadsPS
-				ReadLatency = TotalReadTimePS / time.Duration(ReadsPS)
-				AvgReadBlockSize = TotalReadBlockCountPS / ReadsPS
-				ReadThroughput = TotalReadBlockCountPS
-			} else {
-				ReadIOPS = 0
-				ReadLatency = 0
-				AvgReadBlockSize = 0
-				ReadThroughput = 0
-			}
-			if WritesPS != 0 {
-				WriteIOPS = WritesPS
-				WriteLatency = TotalWriteTimePS / time.Duration(WritesPS)
-				AvgWriteBlockSize = TotalWriteBlockCountPS / WritesPS
-				WriteThroughput = TotalWriteBlockCountPS
-			} else {
-				WriteIOPS = 0
-				WriteLatency = 0
-				AvgWriteBlockSize = 0
-				WriteThroughput = 0
-			}
-			ReadsPS = 0
-			TotalReadTimePS = 0
-			WritesPS = 0
-			TotalWriteTimePS = 0
-			TotalReadBlockCountPS = 0
-			TotalWriteBlockCountPS = 0
 		case <-s.stopFeed:
 			return
 		case msg := <-s.feed:
 			switch api.SCSICommandType(msg.OpCode) {
 			case api.READ_6, api.READ_10, api.READ_12, api.READ_16:
-				ReadsPS += 1
-				TotalReadTimePS += msg.ElapsedTime
-				TotalReadBlockCountPS += msg.BlockCount
+				ReadIOPS += 1
+				TotalReadTime += int64(msg.ElapsedTime)
+				TotalReadBlockCount += msg.BlockCount
 				break
 			case api.WRITE_6, api.WRITE_10, api.WRITE_12, api.WRITE_16:
-				WritesPS += 1
-				TotalWriteTimePS += msg.ElapsedTime
-				TotalWriteBlockCountPS += msg.BlockCount
+				WritesIOPS += 1
+				TotalWriteTime += int64(msg.ElapsedTime)
+				TotalWriteBlockCount += msg.BlockCount
 				break
 			}
 		case <-s.statsEnq:
 			s.statsEnqRes <- port.Stats{
 				ReadIOPS:         ReadIOPS,
-				ReadLatency:      ReadLatency,
-				AvgReadBlockSize: AvgReadBlockSize,
-				ReadThroughput:   ReadThroughput,
+				TotalReadBlockCount: TotalReadBlockCount,
+				TotalReadTime:       TotalReadTime,
 
 				WriteIOPS:         WriteIOPS,
-				WriteLatency:      WriteLatency,
-				AvgWriteBlockSize: AvgWriteBlockSize,
-				WriteThroughput:   WriteThroughput,
+				TotalWriteBlockCount: TotalWriteBlockCount,
+				TotalWriteTime:       TotalWriteTime,
 			}
 		}
 	}
