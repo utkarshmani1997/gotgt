@@ -65,7 +65,7 @@ func (sbc SBCSCSIDeviceProtocol) InitLu(lu *api.SCSILu) error {
 	lu.Attrs.SenseFormat = false
 	lu.Attrs.VendorID = SCSIVendorID
 	lu.Attrs.ProductID = SCSIProductID
-	lu.Attrs.ProductRev = version.VERSION
+	lu.Attrs.ProductRev = version.Version
 	lu.Attrs.SCSIID = fmt.Sprintf("gotgt-scsi-%d%d", 0, lu.UUID)
 	lu.Attrs.SCSISN = fmt.Sprintf("gotgt-beaf-%d%d", 0, lu.UUID)
 
@@ -75,7 +75,7 @@ func (sbc SBCSCSIDeviceProtocol) InitLu(lu *api.SCSILu) error {
 		leave it with a default target name
 	*/
 
-	lu.Attrs.SCSIID = "iqn.2016-09.com.gotgt.gostor:iscsi-tgt"
+	lu.Attrs.SCSIID = "iqn.2016-09.com.jiva.openebs:iscsi-tgt"
 	/*
 	   The PRODUCT SERIAL NUMBER field contains
 	   right-aligned ASCII data (see 4.3.1)

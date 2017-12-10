@@ -156,13 +156,12 @@ func (conn *iscsiConnection) buildRespPackage(oc OpCode, task *iscsiTask) error 
 		task = conn.rxTask
 	}
 	conn.resp = &ISCSICommand{
-		StartTime:       req.StartTime,
-		ExpectedDataLen: req.ExpectedDataLen,
+		StartTime:       conn.req.StartTime,
+		ExpectedDataLen: conn.req.ExpectedDataLen,
 		StatSN:          conn.req.ExpStatSN,
 		TaskTag:         conn.req.TaskTag,
 		ExpCmdSN:        conn.session.ExpCmdSN,
 		MaxCmdSN:        conn.session.ExpCmdSN + conn.session.MaxQueueCommand,
-		ExpectedDataLen: conn.req.ExpectedDataLen,
 	}
 	switch oc {
 	case OpReady:

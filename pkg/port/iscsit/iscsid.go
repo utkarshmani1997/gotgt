@@ -25,7 +25,6 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/glog"
 	"github.com/openebs/gotgt/pkg/api"
 	"github.com/openebs/gotgt/pkg/config"
 	"github.com/openebs/gotgt/pkg/scsi"
@@ -46,7 +45,7 @@ type ISCSITargetDriver struct {
 	stopFeed      chan bool
 	feed          chan Msg
 	statsEnq      chan bool
-	statsEnqRes   chan port.Stats
+	statsEnqRes   chan scsi.Stats
 	SCSIIOCount   map[int]int64
 	listen        net.Listener
 	clusterIP     string
@@ -97,7 +96,7 @@ func NewISCSITargetDriver(base *scsi.SCSITargetService) (scsi.SCSITargetDriver, 
 		stopFeed:     make(chan bool, 1),
 		feed:         make(chan Msg, 10000),
 		statsEnq:     make(chan bool, 1),
-		statsEnqRes:  make(chan port.Stats, 1),
+		statsEnqRes:  make(chan scsi.Stats, 1),
 		SCSIIOCount:  map[int]int64{},
 		state:        STATE_INIT,
 		lock:         &sync.RWMutex{},
@@ -118,7 +117,7 @@ func (s *ISCSITargetDriver) setState(st uint8) {
 
 	s.state = st
 }
-func (s *ISCSITargetService) Stats() port.Stats {
+func (s *ISCSITargetDriver) Stats() scsi.Stats {
 	//s.lock.Lock()
 	//defer s.lock.Unlock()
 
@@ -128,7 +127,7 @@ func (s *ISCSITargetService) Stats() port.Stats {
 	return stats
 }
 
-func (s *ISCSITargetService) Resize(size uint64) error {
+func (s *ISCSITargetDriver) Resize(size uint64) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
@@ -136,7 +135,7 @@ func (s *ISCSITargetService) Resize(size uint64) error {
 
 }
 
-func (s *ISCSITargetService) SetClusterIP(clusterIP string) error {
+func (s *ISCSITargetDriver) SetClusterIP(clusterIP string) error {
 	s.clusterIP = clusterIP
 	return nil
 }
@@ -150,6 +149,7 @@ func (s *ISCSITargetDriver) NewTarget(tgtName string, configInfo *config.Config)
 		return err
 	}
 	tgt := newISCSITarget(stgt)
+
 	s.iSCSITargets[tgtName] = tgt
 	scsiTPG := tgt.SCSITarget.TargetPortGroups[0]
 	targetConfig := configInfo.ISCSITargets[tgtName]
@@ -257,13 +257,13 @@ func (s *ISCSITargetDriver) Run() error {
 	s.setState(STATE_RUNNING)
 	go s.StatsFeed()
 	for {
-		glog.Info("Listening ...")
+		log.Info("Listening ...")
 		conn, err := s.listen.Accept()
 		if err != nil {
 			select {
 			case <-s.done:
 			default:
-				glog.Error(err)
+				log.Error(err)
 
 			}
 			return err
@@ -544,16 +544,15 @@ type Msg struct {
 	ElapsedTime time.Duration
 }
 
-func (s *ISCSITargetService) StatsFeed() {
+func (s *ISCSITargetDriver) StatsFeed() {
 	var (
-		ReadIOPS  int64
+		ReadIOPS            int64
 		TotalReadTime       int64
 		TotalReadBlockCount int64
 
-		WriteIOPS int64
+		WriteIOPS            int64
 		TotalWriteTime       int64
 		TotalWriteBlockCount int64
-
 	)
 
 	for {
@@ -568,18 +567,18 @@ func (s *ISCSITargetService) StatsFeed() {
 				TotalReadBlockCount += msg.BlockCount
 				break
 			case api.WRITE_6, api.WRITE_10, api.WRITE_12, api.WRITE_16:
-				WritesIOPS += 1
+				WriteIOPS += 1
 				TotalWriteTime += int64(msg.ElapsedTime)
 				TotalWriteBlockCount += msg.BlockCount
 				break
 			}
 		case <-s.statsEnq:
-			s.statsEnqRes <- port.Stats{
-				ReadIOPS:         ReadIOPS,
+			s.statsEnqRes <- scsi.Stats{
+				ReadIOPS:            ReadIOPS,
 				TotalReadBlockCount: TotalReadBlockCount,
 				TotalReadTime:       TotalReadTime,
 
-				WriteIOPS:         WriteIOPS,
+				WriteIOPS:            WriteIOPS,
 				TotalWriteBlockCount: TotalWriteBlockCount,
 				TotalWriteTime:       TotalWriteTime,
 			}

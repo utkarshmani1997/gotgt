@@ -17,6 +17,7 @@ limitations under the License.
 package scsi
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"sync"
