@@ -776,7 +776,7 @@ func (s *ISCSITargetDriver) scsiCommandHandler(conn *iscsiConnection) (err error
 				task.state = taskPending
 				conn.session.PendingTasks.Push(task)
 				conn.rxTask = task
-				if conn.session.SessionParam[ISCSI_PARAM_INITIAL_R2T_EN].Value == 1 {
+				if conn.session.SessionParam[ISCSI_PARAM_INITIAL_R2T_EN].Value == 0 {
 					iscsiExecR2T(conn)
 					break
 				} else {
@@ -982,10 +982,10 @@ func (s *ISCSITargetDriver) iscsiExecTask(task *iscsiTask) error {
 			fallthrough
 		case ISCSI_TM_FUNC_TARGET_WARM_RESET, ISCSI_TM_FUNC_TARGET_COLD_RESET, ISCSI_TM_FUNC_TASK_REASSIGN:
 			task.result = ISCSI_TMF_RSP_NOT_SUPPORTED
-			return fmt.Errorf("The task function is not supported")
+			//return fmt.Errorf("The task function is not supported")
 		default:
 			task.result = ISCSI_TMF_RSP_REJECTED
-			return fmt.Errorf("Unknown task function")
+			//return fmt.Errorf("Unknown task function")
 		}
 		// return response to initiator
 		return task.conn.buildRespPackage(OpSCSITaskResp, task)
