@@ -23,6 +23,7 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/openebs/gotgt/pkg/api"
 	"github.com/openebs/gotgt/pkg/util"
 )
 
@@ -238,6 +239,13 @@ func parseHeader(data []byte) (*ISCSICommand, error) {
 		m.Write = data[1]&0x20 == 0x20
 		m.CDB = data[32:48]
 		m.SCSIOpCode = m.CDB[0]
+		SCSIOpcode := api.SCSICommandType(m.SCSIOpCode)
+		switch SCSIOpcode {
+		case api.READ_6, api.READ_10, api.READ_12, api.READ_16:
+			m.Read = true
+		case api.WRITE_6, api.WRITE_10, api.WRITE_12, api.WRITE_16, api.WRITE_VERIFY, api.WRITE_VERIFY_12, api.WRITE_VERIFY_16:
+			m.Write = true
+		}
 		m.ExpStatSN = uint32(ParseUint(data[28:32]))
 		fallthrough
 	case OpSCSITaskReq:
@@ -363,8 +371,9 @@ func (m *ISCSICommand) dataInBytes() []byte {
 	copy(buf[36:], util.MarshalUint32(m.DataSN))
 	copy(buf[40:], util.MarshalUint32(m.BufferOffset))
 	copy(buf[44:], util.MarshalUint32(m.Resid))
-	copy(buf[48:], m.RawData[m.BufferOffset:m.BufferOffset+uint32(m.DataLen)])
-
+	if m.ExpectedDataLen != 0 {
+		copy(buf[48:], m.RawData[m.BufferOffset:m.BufferOffset+uint32(m.DataLen)])
+	}
 	return buf
 }
 

@@ -747,6 +747,13 @@ func (s *ISCSITargetDriver) scsiCommandHandler(conn *iscsiConnection) (err error
 
 		task := &iscsiTask{conn: conn, cmd: conn.req, tag: conn.req.TaskTag, scmd: scmd}
 		task.scmd.OpCode = conn.req.SCSIOpCode
+		if scmd.Direction == api.SCSIDataBidirection {
+			task.scmd.Result = api.SAMStatCheckCondition.Stat
+			scsi.BuildSenseData(task.scmd, scsi.ILLEGAL_REQUEST, scsi.NO_ADDITIONAL_SENSE)
+			conn.buildRespPackage(OpSCSIResp, task)
+			conn.rxTask = nil
+			break
+		}
 		if req.Write {
 			task.expectedDataLength = int64(req.ExpectedDataLen)
 			task.r2tCount = int(req.ExpectedDataLen) - req.DataLen
@@ -801,7 +808,7 @@ func (s *ISCSITargetDriver) scsiCommandHandler(conn *iscsiConnection) (err error
 			}
 			return
 		} else {
-			if scmd.Direction == api.SCSIDataRead && scmd.SenseBuffer == nil {
+			if scmd.Direction == api.SCSIDataRead && scmd.SenseBuffer == nil && req.ExpectedDataLen != 0 {
 				conn.buildRespPackage(OpSCSIIn, task)
 			} else {
 				conn.buildRespPackage(OpSCSIResp, task)
