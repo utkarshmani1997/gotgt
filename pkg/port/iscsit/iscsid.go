@@ -829,6 +829,7 @@ func (s *ISCSITargetDriver) scsiCommandHandler(conn *iscsiConnection) (err error
 		for indx, t = range conn.session.PendingTasks {
 			if t.tag == conn.req.TaskTag {
 				task = t
+				break
 			}
 		}
 		if task == nil {
