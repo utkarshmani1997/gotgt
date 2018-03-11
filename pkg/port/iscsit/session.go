@@ -190,7 +190,7 @@ var sessionKeys map[string]*iscsiSessionKeys = map[string]*iscsiSessionKeys{
 	// ISCSI_PARAM_DATADGST_EN
 	"DataDigest": {ISCSI_PARAM_DATADGST_EN, false, DIGEST_NONE, DIGEST_NONE, DIGEST_ALL, digestKeyConv, digestKeyInConv},
 	// ISCSI_PARAM_INITIAL_R2T_EN
-	"InitialR2T": {ISCSI_PARAM_INITIAL_R2T_EN, false, 1, 0, 1, boolKeyConv, boolKeyInConv},
+	"InitialR2T": {ISCSI_PARAM_INITIAL_R2T_EN, true, 1, 0, 1, boolKeyConv, boolKeyInConv},
 	// ISCSI_PARAM_MAX_R2T
 	"MaxOutstandingR2T": {ISCSI_PARAM_MAX_R2T, true, 1, 1, 65535, numberKeyConv, numberKeyInConv},
 	// ISCSI_PARAM_IMM_DATA_EN
@@ -286,16 +286,19 @@ func (tq *taskQueue) Pop() interface{} {
 	return item
 }
 
-func (tq *taskQueue) Delete(indx int, x interface{}) {
+func (tq *taskQueue) Delete(x interface{}) {
 	item := x.(*iscsiTask)
 	old := *tq
 	n := len(old)
 
-	if item == old[indx] {
-		if indx == 0 && n == 1 {
-			*tq = nil
-		} else {
-			*tq = append(old[:indx], old[indx+1:]...)
+	for indx, t := range old {
+		if t == item {
+			if indx == 0 && n == 1 {
+				*tq = nil
+			} else {
+				*tq = append(old[:indx], old[indx+1:]...)
+			}
+			break
 		}
 	}
 }

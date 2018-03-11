@@ -781,9 +781,11 @@ func (s *ISCSITargetDriver) scsiCommandHandler(conn *iscsiConnection) (err error
 				// prepare to receive more data
 				conn.session.ExpCmdSN += 1
 				task.state = taskPending
+				conn.session.PendingTasksMutex.Lock()
 				conn.session.PendingTasks.Push(task)
+				conn.session.PendingTasksMutex.Unlock()
 				conn.rxTask = task
-				if conn.session.SessionParam[ISCSI_PARAM_INITIAL_R2T_EN].Value == 0 {
+				if conn.session.SessionParam[ISCSI_PARAM_INITIAL_R2T_EN].Value == 1 {
 					iscsiExecR2T(conn)
 					break
 				} else {
@@ -825,13 +827,14 @@ func (s *ISCSITargetDriver) scsiCommandHandler(conn *iscsiConnection) (err error
 	case OpSCSIOut:
 		log.Debugf("iSCSI Data-out processing...")
 		var task, t *iscsiTask
-		var indx int
-		for indx, t = range conn.session.PendingTasks {
+		conn.session.PendingTasksMutex.Lock()
+		for _, t = range conn.session.PendingTasks {
 			if t.tag == conn.req.TaskTag {
 				task = t
 				break
 			}
 		}
+		conn.session.PendingTasksMutex.Unlock()
 		if task == nil {
 			err = fmt.Errorf("Cannot find iSCSI task with tag[%v]", conn.req.TaskTag)
 			log.Error(err)
@@ -859,7 +862,6 @@ func (s *ISCSITargetDriver) scsiCommandHandler(conn *iscsiConnection) (err error
 			iscsiExecR2T(conn)
 			break
 		}
-		conn.session.PendingTasks.Delete(indx, task)
 		task.offset = 0
 		log.Debugf("Process the Data-out package")
 		conn.rxTask = task
@@ -868,6 +870,9 @@ func (s *ISCSITargetDriver) scsiCommandHandler(conn *iscsiConnection) (err error
 		} else {
 			conn.buildRespPackage(OpSCSIResp, task)
 			conn.rxTask = nil
+			conn.session.PendingTasksMutex.Lock()
+			conn.session.PendingTasks.Delete(task)
+			conn.session.PendingTasksMutex.Unlock()
 		}
 	case OpNoopOut:
 		iscsiExecNoopOut(conn)
