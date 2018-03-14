@@ -870,9 +870,11 @@ func (s *ISCSITargetDriver) scsiCommandHandler(conn *iscsiConnection) (err error
 		} else {
 			conn.buildRespPackage(OpSCSIResp, task)
 			conn.rxTask = nil
+			/* Introducing the memleak to test the e2e testcase for finding memleaks in Jiva
 			conn.session.PendingTasksMutex.Lock()
 			conn.session.PendingTasks.Delete(task)
 			conn.session.PendingTasksMutex.Unlock()
+			*/
 		}
 	case OpNoopOut:
 		iscsiExecNoopOut(conn)
