@@ -30,7 +30,7 @@ func init() {
 
 type RemBackingStore struct {
 	scsi.BaseBackingStore
-	RemBs api.ReaderWriterAt
+	RemBs api.IOs
 }
 
 func newRemBs() (api.BackingStore, error) {
@@ -95,6 +95,8 @@ func (bs *RemBackingStore) Write(wbuf []byte, offset int64) error {
 func (bs *RemBackingStore) DataAdvise(offset, length int64, advise uint32) error {
 	return nil
 }
-func (bs *RemBackingStore) DataSync() error {
-	return nil
+
+func (bs *RemBackingStore) DataSync() (err error) {
+	_, err = bs.RemBs.Sync()
+	return
 }

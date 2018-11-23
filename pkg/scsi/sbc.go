@@ -677,6 +677,13 @@ func SBCServiceAction(host int, cmd *api.SCSICommand) api.SAMStat {
  * 5.18 - SYNCHRONIZE CACHE (10)
  * 5.19 - SYNCHRONIZE CACHE (16)
  */
+
 func SBCSyncCache(host int, cmd *api.SCSICommand) api.SAMStat {
+	err, key, asc := bsPerformCommand(cmd.Device.Storage, cmd)
+	if err != nil {
+		fmt.Errorf("Error from backend: %s", err)
+		BuildSenseData(cmd, key, asc)
+		return api.SAMStatBusy
+	}
 	return api.SAMStatGood
 }
