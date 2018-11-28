@@ -34,13 +34,13 @@ type SCSILUMap struct {
 	AllDevices api.LUNMap
 	// use target name as the key for target's LUN map
 	TargetsLUNMap map[string]api.LUNMap
-	TargetsBSMap  map[string]api.ReaderWriterAt /* use target name as the key for target's Backing Store (temp) */
+	TargetsBSMap  map[string]api.IOs /* use target name as the key for target's Backing Store (temp) */
 }
 
 var globalSCSILUMap = SCSILUMap{
 	AllDevices:    make(api.LUNMap),
 	TargetsLUNMap: make(map[string]api.LUNMap),
-	TargetsBSMap:  make(map[string]api.ReaderWriterAt),
+	TargetsBSMap:  make(map[string]api.IOs),
 }
 
 func mappingLUN(deviceID uint64, lun uint64, target string) {
@@ -72,7 +72,7 @@ func GetTargetLUNMap(tgtName string) api.LUNMap {
 	return lunMap
 }
 
-func GetTargetBSMap(tgtName string) api.ReaderWriterAt {
+func GetTargetBSMap(tgtName string) api.IOs {
 	/* TODO check for lock held by caller
 	globalSCSILUMap.mutex.RLock()
 	defer globalSCSILUMap.mutex.RUnlock()*/
@@ -112,7 +112,7 @@ func InitSCSILUMap(config *config.Config) error {
 	return nil
 }
 
-func InitSCSILUMapEx(tgtName, devpath string, deviceID, lun, size, sectorSize uint64, bs api.ReaderWriterAt) error {
+func InitSCSILUMapEx(tgtName, devpath string, deviceID, lun, size, sectorSize uint64, bs api.IOs) error {
 	globalSCSILUMap.mutex.Lock()
 	defer globalSCSILUMap.mutex.Unlock()
 

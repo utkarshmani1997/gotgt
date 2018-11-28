@@ -19,8 +19,9 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/satori/go.uuid"
 	"io"
+
+	"github.com/satori/go.uuid"
 )
 
 type SCSICommandType byte
@@ -346,6 +347,11 @@ type CommandFunc func(host int, cmd *SCSICommand) SAMStat
 type ReaderWriterAt interface {
 	io.ReaderAt
 	io.WriterAt
+}
+
+type IOs interface {
+	ReaderWriterAt
+	Sync() (int, error)
 }
 
 type BackingStore interface {
