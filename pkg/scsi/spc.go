@@ -377,7 +377,9 @@ func SPCReportLuns(host int, cmd *api.SCSICommand) api.SAMStat {
 	copy(cmd.InSDBBuffer.Buffer, buf.Bytes())
 	return api.SAMStatGood
 sense:
-	cmd.InSDBBuffer.Resid = 0
+	if cmd.InSDBBuffer != nil {
+		cmd.InSDBBuffer.Resid = 0
+	}
 	BuildSenseData(cmd, ILLEGAL_REQUEST, ASC_INVALID_FIELD_IN_CDB)
 	return api.SAMStatCheckCondition
 }
@@ -390,7 +392,9 @@ func SPCStartStop(host int, cmd *api.SCSICommand) api.SAMStat {
 		return api.SAMStatReservationConflict
 	}
 
-	cmd.InSDBBuffer.Resid = 0
+	if cmd.InSDBBuffer != nil {
+		cmd.InSDBBuffer.Resid = 0
+	}
 	scb := cmd.SCB
 	pwrcnd = scb[4] & 0xf0
 	if pwrcnd != 0 {
@@ -595,7 +599,9 @@ func SPCSendDiagnostics(host int, cmd *api.SCSICommand) api.SAMStat {
 
 	return api.SAMStatGood
 sense:
-	cmd.InSDBBuffer.Resid = 0
+	if cmd.InSDBBuffer != nil {
+		cmd.InSDBBuffer.Resid = 0
+	}
 	BuildSenseData(cmd, ILLEGAL_REQUEST, ASC_INVALID_FIELD_IN_CDB)
 	return api.SAMStatCheckCondition
 }
@@ -681,7 +687,9 @@ func SPCReportSupportedOperationCodes(host int, cmd *api.SCSICommand) api.SAMSta
 	return api.SAMStatGood
 
 sense:
-	cmd.InSDBBuffer.Resid = 0
+	if cmd.InSDBBuffer != nil {
+		cmd.InSDBBuffer.Resid = 0
+	}
 	BuildSenseData(cmd, ILLEGAL_REQUEST, ASC_INVALID_FIELD_IN_CDB)
 	return api.SAMStatCheckCondition
 }
@@ -697,7 +705,9 @@ func SPCServiceAction(host int, cmd *api.SCSICommand) api.SAMStat {
 		fnop := serviceAction.(*SCSIServiceAction)
 		return fnop.CommandPerformFunc(host, cmd)
 	}
-	cmd.InSDBBuffer.Resid = 0
+	if cmd.InSDBBuffer != nil {
+		cmd.InSDBBuffer.Resid = 0
+	}
 	BuildSenseData(cmd, ILLEGAL_REQUEST, ASC_INVALID_FIELD_IN_CDB)
 	return api.SAMStatCheckCondition
 }
@@ -730,7 +740,9 @@ func SPCPRReadKeys(host int, cmd *api.SCSICommand) api.SAMStat {
 	cmd.InSDBBuffer.Resid = uint32(additionLength)
 	return api.SAMStatGood
 sense:
-	cmd.InSDBBuffer.Resid = 0
+	if cmd.InSDBBuffer != nil {
+		cmd.InSDBBuffer.Resid = 0
+	}
 	BuildSenseData(cmd, ILLEGAL_REQUEST, ASC_INVALID_FIELD_IN_CDB)
 	return api.SAMStatCheckCondition
 }
@@ -786,7 +798,9 @@ func SPCPRReadReservation(host int, cmd *api.SCSICommand) api.SAMStat {
 	return api.SAMStatGood
 
 sense:
-	cmd.InSDBBuffer.Resid = 0
+	if cmd.InSDBBuffer != nil {
+		cmd.InSDBBuffer.Resid = 0
+	}
 	BuildSenseData(cmd, ILLEGAL_REQUEST, ASC_INVALID_FIELD_IN_CDB)
 	return api.SAMStatCheckCondition
 }
@@ -824,7 +838,9 @@ func SPCPRReportCapabilities(host int, cmd *api.SCSICommand) api.SAMStat {
 	cmd.InSDBBuffer.Resid = uint32(actualLength)
 	return api.SAMStatGood
 sense:
-	cmd.InSDBBuffer.Resid = 0
+	if cmd.InSDBBuffer != nil {
+		cmd.InSDBBuffer.Resid = 0
+	}
 	BuildSenseData(cmd, ILLEGAL_REQUEST, ASC_INVALID_FIELD_IN_CDB)
 	return api.SAMStatCheckCondition
 }
@@ -903,7 +919,9 @@ func SPCPRRegister(host int, cmd *api.SCSICommand) api.SAMStat {
 	return api.SAMStatGood
 
 sense:
-	cmd.InSDBBuffer.Resid = 0
+	if cmd.InSDBBuffer != nil {
+		cmd.InSDBBuffer.Resid = 0
+	}
 	BuildSenseData(cmd, ILLEGAL_REQUEST, ASC_INVALID_FIELD_IN_CDB)
 	return api.SAMStatCheckCondition
 }
@@ -965,7 +983,9 @@ func SPCPRReserve(host int, cmd *api.SCSICommand) api.SAMStat {
 	scsiResOp.Save(tgtName, devUUID)
 	return api.SAMStatGood
 sense:
-	cmd.InSDBBuffer.Resid = 0
+	if cmd.InSDBBuffer != nil {
+		cmd.InSDBBuffer.Resid = 0
+	}
 	BuildSenseData(cmd, ILLEGAL_REQUEST, ASC_INVALID_FIELD_IN_CDB)
 	return api.SAMStatCheckCondition
 }
@@ -1015,7 +1035,9 @@ func SPCPRRelease(host int, cmd *api.SCSICommand) api.SAMStat {
 	}
 
 	if curRes.Scope != resScope || curRes.Type != resType {
-		cmd.InSDBBuffer.Resid = 0
+		if cmd.InSDBBuffer != nil {
+			cmd.InSDBBuffer.Resid = 0
+		}
 		BuildSenseData(cmd, ILLEGAL_REQUEST, ASC_INVALID_RELEASE_OF_PERSISTENT_RESERVATION)
 		return api.SAMStatCheckCondition
 	}
@@ -1046,7 +1068,9 @@ func SPCPRRelease(host int, cmd *api.SCSICommand) api.SAMStat {
 	scsiResOp.Save(tgtName, devUUID)
 	return api.SAMStatGood
 sense:
-	cmd.InSDBBuffer.Resid = 0
+	if cmd.InSDBBuffer != nil {
+		cmd.InSDBBuffer.Resid = 0
+	}
 	BuildSenseData(cmd, ILLEGAL_REQUEST, ASC_INVALID_FIELD_IN_CDB)
 	return api.SAMStatCheckCondition
 }
@@ -1100,7 +1124,9 @@ func SPCPRClear(host int, cmd *api.SCSICommand) api.SAMStat {
 	scsiResOp.Save(tgtName, devUUID)
 	return api.SAMStatGood
 sense:
-	cmd.InSDBBuffer.Resid = 0
+	if cmd.InSDBBuffer != nil {
+		cmd.InSDBBuffer.Resid = 0
+	}
 	BuildSenseData(cmd, ILLEGAL_REQUEST, ASC_INVALID_FIELD_IN_CDB)
 	return api.SAMStatCheckCondition
 }
@@ -1200,7 +1226,9 @@ func SPCPRPreempt(host int, cmd *api.SCSICommand) api.SAMStat {
 	scsiResOp.Save(tgtName, devUUID)
 	return api.SAMStatGood
 sense:
-	cmd.InSDBBuffer.Resid = 0
+	if cmd.InSDBBuffer != nil {
+		cmd.InSDBBuffer.Resid = 0
+	}
 	BuildSenseData(cmd, ILLEGAL_REQUEST, ASC_INVALID_FIELD_IN_CDB)
 	return api.SAMStatCheckCondition
 }
@@ -1286,7 +1314,9 @@ found:
 	scsiResOp.Save(tgtName, devUUID)
 	return api.SAMStatGood
 sense:
-	cmd.InSDBBuffer.Resid = 0
+	if cmd.InSDBBuffer != nil {
+		cmd.InSDBBuffer.Resid = 0
+	}
 	BuildSenseData(cmd, ILLEGAL_REQUEST, ASC_INVALID_FIELD_IN_CDB)
 	return api.SAMStatCheckCondition
 }

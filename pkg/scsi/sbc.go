@@ -507,7 +507,9 @@ overflow:
 	cmd.InSDBBuffer.Resid = 8
 	return api.SAMStatGood
 sense:
-	cmd.InSDBBuffer.Resid = 0
+	if cmd.InSDBBuffer != nil {
+		cmd.InSDBBuffer.Resid = 0
+	}
 	BuildSenseData(cmd, key, asc)
 	return api.SAMStatCheckCondition
 }
@@ -649,7 +651,9 @@ func SBCGetLbaStatus(host int, cmd *api.SCSICommand) api.SAMStat {
 	}
 	return api.SAMStatGood
 sense:
-	cmd.InSDBBuffer.Resid = 0
+	if cmd.InSDBBuffer != nil {
+		cmd.InSDBBuffer.Resid = 0
+	}
 	BuildSenseData(cmd, key, asc)
 	return api.SAMStatCheckCondition
 }
