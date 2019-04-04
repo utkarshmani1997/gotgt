@@ -244,6 +244,7 @@ func (s *ISCSITargetDriver) Run() error {
 			}
 		}
 	}
+	log.Infof("iSCSI service listening on: %v", s.listen.Addr())
 	if err != nil {
 		log.Error(err)
 		os.Exit(1)
@@ -257,7 +258,6 @@ func (s *ISCSITargetDriver) Run() error {
 	s.setState(STATE_RUNNING)
 	go s.StatsFeed()
 	for {
-		log.Info("Listening ...")
 		conn, err := s.listen.Accept()
 		if err != nil {
 			select {
@@ -268,8 +268,6 @@ func (s *ISCSITargetDriver) Run() error {
 			}
 			return err
 		}
-		log.Info(conn.LocalAddr().String())
-		log.Info("Accepting ...")
 
 		iscsiConn := &iscsiConnection{conn: conn,
 			loginParam: &iscsiLoginParam{}}

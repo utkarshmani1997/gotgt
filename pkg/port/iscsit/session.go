@@ -389,8 +389,8 @@ func (s *ISCSITargetDriver) BindISCSISession(conn *iscsiConnection) error {
 		}
 
 		if newSess.SessionType == SESSION_NORMAL {
-			log.Infof("New Session initiator name:%v,target name:%v,ISID:0x%x",
-				conn.loginParam.initiator, conn.loginParam.target, conn.loginParam.isid)
+			log.Infof("New Session, type: %s, initiator name:%v, target name:%v, ISID:0x%x",
+				"Normal", conn.loginParam.initiator, conn.loginParam.target, conn.loginParam.isid)
 			//register normal session
 			itnexus := &api.ITNexus{uuid.NewV1(), GeniSCSIITNexusID(newSess)}
 			scsi.AddITNexus(&newSess.Target.SCSITarget, itnexus)
@@ -401,6 +401,8 @@ func (s *ISCSITargetDriver) BindISCSISession(conn *iscsiConnection) error {
 			newSess.Target.Sessions[newSess.TSIH] = newSess
 			newSess.Target.SessionsRWMutex.Unlock()
 		} else {
+			log.Infof("New Session, type: %s, initiator name:%v, ISID:0x%x",
+				"Discovery", conn.loginParam.initiator, conn.loginParam.isid)
 			conn.session = newSess
 		}
 	} else {
