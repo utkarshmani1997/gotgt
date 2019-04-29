@@ -30,6 +30,8 @@ func init() {
 
 type RemBackingStore struct {
 	scsi.BaseBackingStore
+	// Remote backing store, remote server exposing
+	// read and write methods.
 	RemBs api.IOs
 }
 

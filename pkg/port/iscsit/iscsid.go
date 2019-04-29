@@ -87,6 +87,10 @@ const (
 	STATE_TERMINATE
 )
 
+var (
+	opPingTimeout = 6 * time.Second
+)
+
 func NewISCSITargetDriver(base *scsi.SCSITargetService) (scsi.SCSITargetDriver, error) {
 	return &ISCSITargetDriver{
 		Name:         iSCSIDriverName,
@@ -270,14 +274,15 @@ func (s *ISCSITargetDriver) Run() error {
 		}
 
 		iscsiConn := &iscsiConnection{conn: conn,
-			loginParam: &iscsiLoginParam{}}
+			loginParam: &iscsiLoginParam{},
+		}
 
 		iscsiConn.init()
 		iscsiConn.ConnNum = connNum
 		connNum += 1
 		iscsiConn.rxIOState = IOSTATE_RX_BHS
 
-		log.Infof("connection is connected from %s...\n", conn.RemoteAddr().String())
+		log.Infof("Target is connected to initiator: %s", conn.RemoteAddr().String())
 		// start a new thread to do with this command
 		go s.handler(DATAIN, iscsiConn)
 	}
@@ -466,6 +471,7 @@ func (s *ISCSITargetDriver) iscsiExecLogin(conn *iscsiConnection) error {
 }
 
 func iscsiExecLogout(conn *iscsiConnection) error {
+	log.Infof("Logout request received from initiator: %q, address: %v", conn.session.Initiator, conn.conn.RemoteAddr().String())
 	cmd := conn.req
 	conn.resp = &ISCSICommand{
 		OpCode:  OpLogoutResp,
@@ -524,6 +530,7 @@ func (s *ISCSITargetDriver) iscsiExecText(conn *iscsiConnection) error {
 }
 
 func iscsiExecNoopOut(conn *iscsiConnection) error {
+	conn.lastNopout = time.Now()
 	return conn.buildRespPackage(OpNoopIn, nil)
 }
 
@@ -873,6 +880,10 @@ func (s *ISCSITargetDriver) scsiCommandHandler(conn *iscsiConnection) (err error
 			conn.session.PendingTasksMutex.Unlock()
 		}
 	case OpNoopOut:
+		timeout := time.Since(conn.lastNopout)
+		if timeout > opPingTimeout {
+			log.Warningf("Received ping after %v, ping timeout is %v", timeout, opPingTimeout)
+		}
 		iscsiExecNoopOut(conn)
 	case OpLogoutReq:
 		conn.txTask = &iscsiTask{conn: conn, cmd: conn.req, tag: conn.req.TaskTag}
