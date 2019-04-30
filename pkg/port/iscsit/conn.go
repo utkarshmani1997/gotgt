@@ -21,7 +21,6 @@ import (
 	"net"
 	"sort"
 	"sync"
-	"time"
 
 	"github.com/openebs/gotgt/pkg/api"
 	"github.com/openebs/gotgt/pkg/util"
@@ -87,8 +86,7 @@ type iscsiConnection struct {
 	rxTask *iscsiTask
 	txTask *iscsiTask
 
-	readLock   *sync.RWMutex
-	lastNopout time.Time
+	readLock *sync.RWMutex
 }
 
 type taskState int
@@ -118,7 +116,6 @@ type iscsiTask struct {
 func (c *iscsiConnection) init() {
 	c.state = CONN_STATE_FREE
 	c.refcount = 1
-	c.lastNopout = time.Time{}
 	c.readLock = new(sync.RWMutex)
 	c.loginParam.sessionParam = []ISCSISessionParam{}
 	c.loginParam.tgtCSG = LoginOperationalNegotiation

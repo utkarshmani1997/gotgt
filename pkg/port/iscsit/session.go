@@ -389,8 +389,8 @@ func (s *ISCSITargetDriver) BindISCSISession(conn *iscsiConnection) error {
 		}
 
 		if newSess.SessionType == SESSION_NORMAL {
-			log.Infof("Login request received from initiator: %v, Session type: %s, Target name:%v",
-				conn.loginParam.initiator, "Normal", conn.loginParam.target)
+			log.Infof("Login request received from initiator: %v, Session type: %s, Target name:%v, ISID: 0x%x",
+				conn.loginParam.initiator, "Normal", conn.loginParam.target, conn.loginParam.isid)
 			//register normal session
 			id, _ := uuid.NewV1()
 			itnexus := &api.ITNexus{id, GeniSCSIITNexusID(newSess)}
@@ -402,8 +402,8 @@ func (s *ISCSITargetDriver) BindISCSISession(conn *iscsiConnection) error {
 			newSess.Target.Sessions[newSess.TSIH] = newSess
 			newSess.Target.SessionsRWMutex.Unlock()
 		} else {
-			log.Infof("Discovery request received from initiator: %v, Session type: %s",
-				conn.loginParam.initiator, "Discovery")
+			log.Infof("Discovery request received from initiator: %v, Session type: %s, ISID: 0x%x",
+				conn.loginParam.initiator, "Discovery", conn.loginParam.isid)
 			conn.session = newSess
 		}
 	} else {

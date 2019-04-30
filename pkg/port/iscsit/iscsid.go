@@ -37,6 +37,8 @@ const (
 	ISCSI_UNSPEC_TSIH = uint16(0)
 )
 
+type operation func(*iscsiConnection) error
+
 type ISCSITargetDriver struct {
 	SCSI          *scsi.SCSITargetService
 	Name          string
@@ -88,7 +90,7 @@ const (
 )
 
 var (
-	opPingTimeout = 6 * time.Second
+	opPingThreshold = 3 * time.Second
 )
 
 func NewISCSITargetDriver(base *scsi.SCSITargetService) (scsi.SCSITargetDriver, error) {
@@ -106,6 +108,15 @@ func NewISCSITargetDriver(base *scsi.SCSITargetService) (scsi.SCSITargetDriver, 
 		lock:         &sync.RWMutex{},
 		TSIHPool:     map[uint16]bool{0: true, 65535: true},
 	}, nil
+}
+
+func timed(f operation, conn *iscsiConnection) {
+	start := time.Now()
+	f(conn)
+	since := time.Since(start)
+	if since > opPingThreshold {
+		log.Warningf("Ping request took %vs at target", since.Seconds())
+	}
 }
 
 func (s *ISCSITargetDriver) getState() uint8 {
@@ -471,7 +482,9 @@ func (s *ISCSITargetDriver) iscsiExecLogin(conn *iscsiConnection) error {
 }
 
 func iscsiExecLogout(conn *iscsiConnection) error {
-	log.Infof("Logout request received from initiator: %q, address: %v", conn.session.Initiator, conn.conn.RemoteAddr().String())
+	if conn.conn != nil {
+		log.Infof("Logout request received from initiator: %v", conn.conn.RemoteAddr().String())
+	}
 	cmd := conn.req
 	conn.resp = &ISCSICommand{
 		OpCode:  OpLogoutResp,
@@ -530,7 +543,6 @@ func (s *ISCSITargetDriver) iscsiExecText(conn *iscsiConnection) error {
 }
 
 func iscsiExecNoopOut(conn *iscsiConnection) error {
-	conn.lastNopout = time.Now()
 	return conn.buildRespPackage(OpNoopIn, nil)
 }
 
@@ -880,11 +892,7 @@ func (s *ISCSITargetDriver) scsiCommandHandler(conn *iscsiConnection) (err error
 			conn.session.PendingTasksMutex.Unlock()
 		}
 	case OpNoopOut:
-		timeout := time.Since(conn.lastNopout)
-		if timeout > opPingTimeout {
-			log.Warningf("Received ping after %v, ping timeout is %v", timeout, opPingTimeout)
-		}
-		iscsiExecNoopOut(conn)
+		timed(iscsiExecNoopOut, conn)
 	case OpLogoutReq:
 		conn.txTask = &iscsiTask{conn: conn, cmd: conn.req, tag: conn.req.TaskTag}
 		conn.txIOState = IOSTATE_TX_BHS
