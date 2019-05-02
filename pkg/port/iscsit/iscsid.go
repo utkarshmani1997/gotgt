@@ -37,6 +37,8 @@ const (
 	ISCSI_UNSPEC_TSIH = uint16(0)
 )
 
+type operation func(*iscsiConnection) error
+
 type ISCSITargetDriver struct {
 	SCSI          *scsi.SCSITargetService
 	Name          string
@@ -87,6 +89,10 @@ const (
 	STATE_TERMINATE
 )
 
+var (
+	opPingThreshold = 3 * time.Second
+)
+
 func NewISCSITargetDriver(base *scsi.SCSITargetService) (scsi.SCSITargetDriver, error) {
 	return &ISCSITargetDriver{
 		Name:         iSCSIDriverName,
@@ -102,6 +108,15 @@ func NewISCSITargetDriver(base *scsi.SCSITargetService) (scsi.SCSITargetDriver, 
 		lock:         &sync.RWMutex{},
 		TSIHPool:     map[uint16]bool{0: true, 65535: true},
 	}, nil
+}
+
+func timed(f operation, conn *iscsiConnection) {
+	start := time.Now()
+	f(conn)
+	since := time.Since(start)
+	if since > opPingThreshold {
+		log.Warningf("Ping request took %vs at target", since.Seconds())
+	}
 }
 
 func (s *ISCSITargetDriver) getState() uint8 {
@@ -270,14 +285,15 @@ func (s *ISCSITargetDriver) Run() error {
 		}
 
 		iscsiConn := &iscsiConnection{conn: conn,
-			loginParam: &iscsiLoginParam{}}
+			loginParam: &iscsiLoginParam{},
+		}
 
 		iscsiConn.init()
 		iscsiConn.ConnNum = connNum
 		connNum += 1
 		iscsiConn.rxIOState = IOSTATE_RX_BHS
 
-		log.Infof("connection is connected from %s...\n", conn.RemoteAddr().String())
+		log.Infof("Target is connected to initiator: %s", conn.RemoteAddr().String())
 		// start a new thread to do with this command
 		go s.handler(DATAIN, iscsiConn)
 	}
@@ -466,6 +482,9 @@ func (s *ISCSITargetDriver) iscsiExecLogin(conn *iscsiConnection) error {
 }
 
 func iscsiExecLogout(conn *iscsiConnection) error {
+	if conn.conn != nil {
+		log.Infof("Logout request received from initiator: %v", conn.conn.RemoteAddr().String())
+	}
 	cmd := conn.req
 	conn.resp = &ISCSICommand{
 		OpCode:  OpLogoutResp,
@@ -873,7 +892,7 @@ func (s *ISCSITargetDriver) scsiCommandHandler(conn *iscsiConnection) (err error
 			conn.session.PendingTasksMutex.Unlock()
 		}
 	case OpNoopOut:
-		iscsiExecNoopOut(conn)
+		timed(iscsiExecNoopOut, conn)
 	case OpLogoutReq:
 		conn.txTask = &iscsiTask{conn: conn, cmd: conn.req, tag: conn.req.TaskTag}
 		conn.txIOState = IOSTATE_TX_BHS
