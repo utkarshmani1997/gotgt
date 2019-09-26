@@ -373,6 +373,9 @@ func SPCReportLuns(host int, cmd *api.SCSICommand) api.SAMStat {
 			remainLength -= 8
 		}
 	}
+	for i := 0; i < 8; i++ {
+		buf.WriteByte(0x00)
+	}
 
 	copy(cmd.InSDBBuffer.Buffer, buf.Bytes())
 	return api.SAMStatGood
@@ -484,7 +487,7 @@ func SPCModeSense(host int, cmd *api.SCSICommand) api.SAMStat {
 		i              uint32
 	)
 	if dbd == 0 {
-		blkDesctionLen = 8
+		blkDesctionLen = 0
 	}
 	if pctrl == 3 {
 		asc = ASC_SAVING_PARMS_UNSUP
