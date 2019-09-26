@@ -363,7 +363,6 @@ func (s *ISCSITargetDriver) rxHandler(conn *iscsiConnection) {
 				conn.state = CONN_STATE_CLOSE
 				return
 			}
-			time.Sleep(1 * time.Second)
 			cmd, err = parseHeader(buf)
 			if err != nil {
 				log.Error(err)
