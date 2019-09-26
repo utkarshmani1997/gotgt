@@ -250,7 +250,7 @@ func SPCInquiry(host int, cmd *api.SCSICommand) api.SAMStat {
 		addBuf.WriteByte(INQUIRY_TPGS_NO)
 		//byte 6
 		//ENCSERV(0) VS(0) MULTIP(0) ADDR16(0)
-		addBuf.WriteByte(0x00)
+		addBuf.WriteByte(0x10)
 		//byte 7
 		//WBUS16(0) SYNC(0) CMDQUE(1) VS1(0)
 		addBuf.WriteByte(INQUIRY_CMDQUE)
