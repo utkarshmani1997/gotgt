@@ -293,7 +293,7 @@ func SPCInquiry(host int, cmd *api.SCSICommand) api.SAMStat {
 		buf.WriteByte(VERSION_WITHDRAW_SPC3)
 		// byte 3
 		// Reserved, Reserved, NORMACA, HISUP, RESPONSE DATA FORMAT
-		buf.WriteByte(INQUIRY_HISUP | INQUIRY_STANDARD_FORMAT)
+		buf.WriteByte(INQUIRY_HISUP_NO | INQUIRY_STANDARD_FORMAT)
 		// byte 4
 		// ADDITIONAL LENGTH
 		buf.WriteByte(additionLength)

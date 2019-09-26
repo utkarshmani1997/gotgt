@@ -172,6 +172,7 @@ const (
 	INQUIRY_PROTECT       = byte(0x01)
 
 	INQUIRY_NORM_ACA        = byte(0x20)
+	INQUIRY_HISUP_NO        = byte(0x00)
 	INQUIRY_HISUP           = byte(0x10)
 	INQUIRY_STANDARD_FORMAT = byte(0x02)
 
